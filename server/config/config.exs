@@ -7,15 +7,15 @@
 # General application configuration
 use Mix.Config
 
-config :eventsapi,
-  ecto_repos: [EventsApi.Repo]
+config :pearcode,
+  ecto_repos: [Pearcode.Repo]
 
 # Configures the endpoint
-config :eventsapi, EventsApiWeb.Endpoint,
-  url: [host: "http://events-spa.api.swoogity.com"],
+config :pearcode, PearcodeWeb.Endpoint,
+  url: [host: "localhost"],
   secret_key_base: "M6QdbpEzIOC0U0Rr1+uFkSXMAcsHiEiQkW+rjMo9HK9pfUw6cmtygld9AtMuyMwR",
-  render_errors: [view: EventsApiWeb.ErrorView, accepts: ~w(html json), layout: false],
-  pubsub_server: EventsApi.PubSub,
+  render_errors: [view: PearcodeWeb.ErrorView, accepts: ~w(html json), layout: false],
+  pubsub_server: Pearcode.PubSub,
   live_view: [signing_salt: "qBgWqmK8"]
 
 # Configures Elixir's Logger

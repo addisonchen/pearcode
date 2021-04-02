@@ -1,4 +1,4 @@
-# EventsApi
+# Pearcode
 
 To start your Phoenix server:
 

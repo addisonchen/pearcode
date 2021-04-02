@@ -1,10 +1,10 @@
 use Mix.Config
 
 # Configure your database
-config :eventsapi, EventsApi.Repo,
-  username: "eventsapi_spa",
+config :pearcode, Pearcode.Repo,
+  username: "pearcode",
   password: "ohKee0vaequa",
-  database: "eventsapi_spa",
+  database: "pearcode",
   hostname: "localhost",
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
@@ -15,7 +15,7 @@ config :eventsapi, EventsApi.Repo,
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with webpack to recompile .js and .css sources.
-config :eventsapi, EventsApiWeb.Endpoint,
+config :pearcode, PearcodeWeb.Endpoint,
   http: [port: 4000],
   debug_errors: true,
   code_reloader: true,
@@ -47,13 +47,13 @@ config :eventsapi, EventsApiWeb.Endpoint,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :eventsapi, EventsApiWeb.Endpoint,
+config :pearcode, PearcodeWeb.Endpoint,
   live_reload: [
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/eventsapi_web/(live|views)/.*(ex)$",
-      ~r"lib/eventsapi_web/templates/.*(eex)$"
+      ~r"lib/pearcode_web/(live|views)/.*(ex)$",
+      ~r"lib/pearcode_web/templates/.*(eex)$"
     ]
   ]
 

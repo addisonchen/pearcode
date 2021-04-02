@@ -1,9 +1,9 @@
-defmodule EventsApi.MixProject do
+defmodule Pearcode.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :eventsapi,
+      app: :pearcode,
       version: "0.1.0",
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -19,7 +19,7 @@ defmodule EventsApi.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {EventsApi.Application, []},
+      mod: {Pearcode.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end

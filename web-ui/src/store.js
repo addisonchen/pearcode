@@ -1,24 +1,6 @@
 // Heavily based on code from nat's scratch repo
 import { createStore, combineReducers } from 'redux';
 
-function users(state = [], action) {
-  switch (action.type) {
-    case 'users/set':
-      return action.data;
-    default:
-      return state;
-  }
-}
-
-function meetings(state = [], action) {
-  switch (action.type) {
-    case 'meetings/set':
-      return action.data;
-    default:
-      return state;
-  }
-}
-
 function save_session(s) {
   let session = Object.assign({}, s, {time: Date.now()});
   localStorage.setItem("session", JSON.stringify(session));
@@ -54,6 +36,7 @@ function session(state = restore_session(), action) {
   switch (action.type) {
     case 'session/set':
       save_session(action.data);
+      console.log(action.data)
       return action.data;
     case 'session/clear':
       delete_session();
@@ -78,7 +61,7 @@ function root_reducer(state, action) {
   //console.log("root reducer", state, action);
 
   let redu = combineReducers(
-    {users, meetings, session, error}
+    {session, error}
   );
 
   let state1 = redu(state, action);

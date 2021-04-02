@@ -2,7 +2,7 @@
 
 import store from './store';
 
-const url = "http://events-spa.api.swoogity.com/api/v1";
+const url = "http://localhost:4000/api/v1";
 
 async function api_get(path) {
   let resp = await fetch(
@@ -72,10 +72,10 @@ export function fetch_users() {
   });
 }
 
-export function fetch_meetings() {
-  api_get("/meetings").then((data) => {
+export function fetch_files() {
+  api_get("/files").then((data) => {
     let action = {
-      type: 'meetings/set',
+      type: 'files/set',
       data: data,
     }
     store.dispatch(action);
@@ -117,20 +117,20 @@ export function delete_user(id) {
   return api_delete( `/users/${id}`);
 }
 
-export function create_meeting(meeting) {
-  return api_post("/meetings", {meeting});
+export function create_file(file) {
+  return api_post("/files", {file});
 }
 
-export function show_meeting(id) {
-  return api_get(`/meetings/${id}`)
+export function show_file(id) {
+  return api_get(`/files/${id}`)
 }
 
-export function delete_meeting(id) {
-  return api_delete(`/meetings/${id}`);
+export function delete_file(id) {
+  return api_delete(`/files/${id}`);
 }
 
-export function update_meeting(id, data) {
-  return api_update(`/meetings/${id}`, data);
+export function update_file(id, data) {
+  return api_update(`/files/${id}`, data);
 }
 
 export function create_invite(invite) {
@@ -160,6 +160,6 @@ export function delete_comment(id) {
 
 
 export function load_defaults() {
-  fetch_meetings();
-  fetch_users();
+  //fetch_files();
+  //fetch_users();
 }

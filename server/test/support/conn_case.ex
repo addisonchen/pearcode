@@ -1,4 +1,4 @@
-defmodule EventsApiWeb.ConnCase do
+defmodule PearcodeWeb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -11,7 +11,7 @@ defmodule EventsApiWeb.ConnCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use EventsApiWeb.ConnCase, async: true`, although
+  by setting `use PearcodeWeb.ConnCase, async: true`, although
   this option is not recommended for other databases.
   """
 
@@ -22,20 +22,20 @@ defmodule EventsApiWeb.ConnCase do
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
-      import EventsApiWeb.ConnCase
+      import PearcodeWeb.ConnCase
 
-      alias EventsApiWeb.Router.Helpers, as: Routes
+      alias PearcodeWeb.Router.Helpers, as: Routes
 
       # The default endpoint for testing
-      @endpoint EventsApiWeb.Endpoint
+      @endpoint PearcodeWeb.Endpoint
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(EventsApi.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Pearcode.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(EventsApi.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(Pearcode.Repo, {:shared, self()})
     end
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}

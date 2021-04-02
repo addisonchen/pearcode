@@ -1,4 +1,4 @@
-defmodule EventsApiWeb.ChannelCase do
+defmodule PearcodeWeb.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by
   channel tests.
@@ -11,7 +11,7 @@ defmodule EventsApiWeb.ChannelCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use EventsApiWeb.ChannelCase, async: true`, although
+  by setting `use PearcodeWeb.ChannelCase, async: true`, although
   this option is not recommended for other databases.
   """
 
@@ -21,18 +21,18 @@ defmodule EventsApiWeb.ChannelCase do
     quote do
       # Import conveniences for testing with channels
       import Phoenix.ChannelTest
-      import EventsApiWeb.ChannelCase
+      import PearcodeWeb.ChannelCase
 
       # The default endpoint for testing
-      @endpoint EventsApiWeb.Endpoint
+      @endpoint PearcodeWeb.Endpoint
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(EventsApi.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Pearcode.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(EventsApi.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(Pearcode.Repo, {:shared, self()})
     end
 
     :ok
