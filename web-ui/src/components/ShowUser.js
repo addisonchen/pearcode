@@ -4,7 +4,7 @@ import HomeIcon from './HomeIcon';
 
 import { useParams, useHistory, Link } from 'react-router-dom';
 
-import { Table, Button, Row, Col } from 'react-bootstrap';
+import { Table, Button, Row, Col, Form } from 'react-bootstrap';
 
 import { show_user, all_invites } from '../api';
 
@@ -127,6 +127,13 @@ function ShowYourself({ session }) {
         "files": []
     });
 
+    const [file, setFile] = useState({
+        "name": "",
+        "language": 50,
+        "description": "",
+        "body": ""
+    })
+
     const [invites, setInvites] = useState([]);
 
     useEffect(() => {
@@ -152,6 +159,18 @@ function ShowYourself({ session }) {
         history.push("/");
     }
 
+    function updateFileName(ev) {
+        let newFile = Object.assign({}, file);
+        newFile["name"] = ev.target.value;
+        setFile(newFile);
+    }
+
+    function updateLanguage(ev) {
+        let newFile = Object.assign({}, file);
+        newFile["language"] = ev.target.value;
+        setFile(newFile);
+    }
+
     return (
         <div className="windowSize padding">
             <Row>
@@ -160,7 +179,38 @@ function ShowYourself({ session }) {
             <Row style={{padding: "15px 0px"}}>
                 <Col sm={6}>
                     <div className="flex-column box" style={{width: '100%', height: 'calc(100% - 20px)', overflow: 'visible'}}>
-                        <Button variant="outline-success">Create</Button>
+                        <Form style={{height: '100%'}}>
+                            <Form.Group className="flex-column space-between" style={{height: '100%'}}>
+                                <Row>
+                                    <Col>
+                                        <Form.Label>Name</Form.Label>
+                                        <Form.Control autoComplete="unsupportedrandom" className="dark-form" type="text" onChange={updateFileName} value={file.name} placeholder="Choose name" />
+                                    </Col>
+                                </Row>
+                                
+                                <Row>
+                                    <Col xs={8}>
+                                        <Form.Label>Language</Form.Label>
+                                        <Form.Control className="dark-form" as="select" value={file.language} onChange={updateLanguage}>
+                                            <option value={50}>C (GCC 9.2.0)</option>
+                                            <option value={54}>C++ (GCC 9.2.0)</option>
+                                            <option value={57}>Elixir</option>
+                                            <option value={62}>Java 13</option>
+                                            <option value={63}>JavaScript 12.14</option>
+                                            <option value={69}>Prolog (GNU 1.4.5)</option>
+                                            <option value={71}>Python 3</option>
+                                            <option value={72}>Ruby 2.7</option>
+                                            <option value={83}>Swift 5</option>
+                                        </Form.Control>
+                                    </Col>
+
+                                    <Col xs={4}>
+                                        <Button variant="outline-success" style={{position: 'relative', width: '100%', top: '100%', transform: 'translateY(-100%)'}}>Create</Button>
+                                    </Col>
+                                </Row>
+                            </Form.Group>
+                        </Form>
+                        
                     </div>
                 </Col>
                 <Col sm={6}>
