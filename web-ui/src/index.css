@@ -31,6 +31,10 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: bold;
 }
 
+.green {
+  color: rgb(149, 178, 78);
+}
+
 .margin {
   margin: 20px;
 }
@@ -165,8 +169,9 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   height: 50px;
   background-color: #0f0f0f;
-  border-radius: 0.25rem;
+  border-radius: 0.5em;
   cursor: pointer;
+  box-shadow: inset 0px 0px 7px 0px #000000;
 }
 
 .toggleText {
@@ -182,7 +187,7 @@ h1, h2, h3, h4, h5, h6 {
   width: 190px;
   height: 40px;
   margin: 5px;
-  background-color: #646464;
+  background-color: #3d3d3d;
   border-radius: 0.25rem;
   transition: 0.2s;
 }
@@ -197,11 +202,49 @@ h1, h2, h3, h4, h5, h6 {
 
 
 .username {
-  font-size: 150px;
+  font-size: 100px;
+}
+
+.personalUsername {
+  font-size: 90px;
+  font-size: 7.5vw;
 }
 
 .profileButton {
-  width: 150px;
+  width: 15vw;
   margin-top: 10px;
   margin-left: 20px;
+}
+
+.fileDisplay {
+  overflow: visible;
+  background-color: #242424;
+  padding: 10px 20px 10px 20px;
+  margin-bottom: 10px;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0px 0px 8px 3px rgba(19, 19, 19, 0.71);
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.fileDisplay:hover {
+  background-color: #282828;
+  box-shadow: 0px 0px 9px 4px rgba(15, 15, 15, 0.71);
+}
+
+.fileDisplay.default {
+  cursor: default;
+}
+
+.box {
+  overflow: visible;
+  background-color: #242424;
+  padding: 20px 30px 40px 30px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0px 0px 8px 3px rgba(19, 19, 19, 0.71);
+  transition: 0.3s;
 }

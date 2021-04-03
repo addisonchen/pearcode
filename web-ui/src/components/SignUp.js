@@ -81,6 +81,13 @@ function CreateAccount() {
             return
         }
 
+        if (user.name.length >= 10) {
+            let newErrors = Object.assign({}, errors);
+            newErrors['name'] = 'Name must be 10 characters or less';
+            setErrors(newErrors);
+            return
+        }
+
         create_user(user).then((resp) => {
             if (resp.errors) {
                 let newErrors = Object.assign({}, errors);

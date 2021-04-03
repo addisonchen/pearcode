@@ -30,7 +30,7 @@ function LoggedInTemplate({session}) {
 
     const history = useHistory();
     return (
-        <Button variant="outline-light" onClick={() => {history.push(`/users/${session.user_id}`)}}>{session.name} | Profile</Button>
+        <Button variant="outline-light" onClick={() => {history.push(`/users/${session.user_id}`)}} style={{textOverflow: 'clip', whiteSpace: 'nowrap'}}>{session.name} | Profile</Button>
     )
 }
 
