@@ -6,13 +6,26 @@ import { useParams, useHistory, Link } from 'react-router-dom';
 
 import { Table, Button, Row, Col, Form } from 'react-bootstrap';
 
-import { show_user, all_invites } from '../api';
+import { show_user, all_invites, create_file } from '../api';
 
 import { connect } from 'react-redux';
 
 import store from './../store';
 
 function ShowFiles({ user, invites }) {
+    const history = useHistory();
+
+    const d = {
+        71: "Python",
+        83: "Swift",
+        63: "JavaScript",
+        62: "Java",
+        50: "C",
+        54: "C++",
+        57: "Elixir",
+        69: "Prolog",
+        72: "Ruby"
+    };
 
     return (
         <Row style={{paddingTop: "20px"}}>
@@ -21,14 +34,17 @@ function ShowFiles({ user, invites }) {
 
                 {
                     user.files.length === 0 ?
-                        <div className="fileDisplay default">
+                        <div className="fileDisplay">
                             <p>No files yet...</p>
                         </div>
                     :
                     user.files.map((f) => {
                         return (
-                            <div className="fileDisplay" key={f.id}>
-                                <p><span className="green">{f.name}</span> | {f.language}</p>
+                            <div className="fileDisplay clickable" key={f.id} onClick={(ev) => {history.push(`/files/${f.id}`)}}>
+                                <div className="flex-row space-between">
+                                    <p className="fileDisplayText">{f.name}</p>
+                                    <p>{d[f.language]}</p>
+                                </div>
                             </div>
                         )
                     })    
@@ -45,8 +61,11 @@ function ShowFiles({ user, invites }) {
                     :
                     invites.map((i) => {
                         return (
-                            <div className="fileDisplay" key={i.id}>
-                                <p>{i.file.name} | {i.file.language}</p>
+                            <div className="fileDisplay clickable" key={i.id} onClick={(ev) => {history.push(`/files/${i.file.id}`)}}>
+                                <div className="flex-row space-between">
+                                    <p className="fileDisplayText">{i.file.name}</p> 
+                                    <p>{i.file.user.name}</p>
+                                </div>
                             </div>
                         )
                     })    
@@ -131,14 +150,30 @@ function ShowYourself({ session }) {
         "name": "",
         "language": 50,
         "description": "",
-        "body": ""
+        "body": "",
+        "user_id": session.user_id
     })
+
+    const [error, setError] = useState(false);
 
     const [invites, setInvites] = useState([]);
 
     useEffect(() => {
         show_user(session.user_id)
             .then((resp) => {
+                resp.files.sort((a, b) => {
+                    var nameA = a.name.toUpperCase(); // ignore upper and lowercase
+                    var nameB = b.name.toUpperCase(); // ignore upper and lowercase
+                    if (nameA < nameB) {
+                        return -1;
+                    }
+                    if (nameA > nameB) {
+                        return 1;
+                    }
+
+                    // names must be equal
+                    return 0;
+                })
                 setUser({
                     "name": resp.name,
                     "email": resp.email,
@@ -171,15 +206,30 @@ function ShowYourself({ session }) {
         setFile(newFile);
     }
 
+    function createFile(ev) {
+        ev.preventDefault();
+
+        create_file(file).then((resp) => {
+            console.log(file);
+            if (resp.errors) {
+                setError(true);
+                console.log(resp);
+            } else {
+                setError(false);
+                history.push(`/files/${resp.data.id}`);
+            }
+        });
+    }
+
     return (
-        <div className="windowSize padding">
+        <div className="windowSize padding" style={{overflow: 'scroll'}}>
             <Row>
                 <HomeIcon style={{marginBottom: '40px'}} />
             </Row>
             <Row style={{padding: "15px 0px"}}>
                 <Col sm={6}>
                     <div className="flex-column box" style={{width: '100%', height: 'calc(100% - 20px)', overflow: 'visible'}}>
-                        <Form style={{height: '100%'}}>
+                        <Form style={{height: '100%'}} onSubmit={createFile}>
                             <Form.Group className="flex-column space-between" style={{height: '100%'}}>
                                 <Row>
                                     <Col>
@@ -188,7 +238,7 @@ function ShowYourself({ session }) {
                                     </Col>
                                 </Row>
                                 
-                                <Row>
+                                <Row style={{overflow: 'visible'}}>
                                     <Col xs={8}>
                                         <Form.Label>Language</Form.Label>
                                         <Form.Control className="dark-form" as="select" value={file.language} onChange={updateLanguage}>
@@ -204,10 +254,19 @@ function ShowYourself({ session }) {
                                         </Form.Control>
                                     </Col>
 
-                                    <Col xs={4}>
-                                        <Button variant="outline-success" style={{position: 'relative', width: '100%', top: '100%', transform: 'translateY(-100%)'}}>Create</Button>
+                                    <Col xs={4} style={{overflow: 'visible'}}>
+                                        <Button variant="outline-success" style={{position: 'relative', width: '100%', top: '100%', transform: 'translateY(-100%)'}} type="submit">Create</Button>
                                     </Col>
                                 </Row>
+                                { error ? 
+                                    <Row>
+                                        <Col>
+                                            <Form.Text className="text-danger">Oops! Something went wrong...</Form.Text>
+                                        </Col>
+                                    </Row>
+                                :
+                                    <></>
+                                }
                             </Form.Group>
                         </Form>
                         

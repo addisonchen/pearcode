@@ -5,6 +5,7 @@ import Nav from './components/Nav';
 import Home from './components/Home';
 import SignUp from './components/SignUp';
 import ShowUser from './components/ShowUser';
+import ShowFile from './components/ShowFile';
 
 function App() {
   return (
@@ -22,6 +23,10 @@ function App() {
 
           <Route exact path="/users/:id">
             <ShowUser />
+          </Route>
+
+          <Route exact path="/files/:id">
+            <ShowFile />
           </Route>
         </Switch>
       </Container>

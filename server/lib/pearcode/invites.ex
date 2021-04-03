@@ -19,7 +19,7 @@ defmodule Pearcode.Invites do
   """
   def list_invites do
     Repo.all(Invite)
-    |> Repo.preload(:file)
+    |> Repo.preload(file: [:user])
   end
 
   @doc """

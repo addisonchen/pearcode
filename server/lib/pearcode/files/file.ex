@@ -19,8 +19,9 @@ defmodule Pearcode.Files.File do
 
   @doc false
   def changeset(file, attrs) do
+    IO.inspect attrs
     file
     |> cast(attrs, [:name, :body, :language, :user_id, :description])
-    |> validate_required([:name, :body, :language, :user_id, :description])
+    |> validate_required([:name, :language, :user_id])
   end
 end

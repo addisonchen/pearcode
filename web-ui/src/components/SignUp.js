@@ -192,7 +192,7 @@ export default function SignUp() {
         <div className="windowSize padding">
             <HomeIcon />
             <div className="loginContainer">
-                <div>
+                <div className="box wa">
                     <div className="toggleContainer" onClick={handleToggle}>
                         <div className="flex-row" style={{width: '100%', height: '100%'}}>
                             <div className={`toggleHighlight ${toggle ? 'left' : 'right'}`}></div>
