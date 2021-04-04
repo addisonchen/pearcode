@@ -16,10 +16,12 @@ function LoginForm({error}) {
     const [email, setEmail] = useState("");
     const [pass, setPass] = useState("");
 
-    function submitLogin(ev) {
-        ev.preventDefault();
-        api_login(email, pass).then(() => {
-            history.push("/");
+    function submitLogin() {
+        console.log('here');
+        api_login(email, pass).then((res) => {
+            if (res) {
+                history.push(`/users/${res}`);
+            }
         });
     }
     
@@ -27,14 +29,14 @@ function LoginForm({error}) {
 
     if (error) {
         error_alert = (
-            <Alert variant="danger" style={{width: "100%", marginBottom: "20px"}}>{error}</Alert>
+            <p className="text-danger" style={{width: "100%", marginBottom: "20px"}}>{error}</p>
         );
     }
 
     return (
-        <div>
+        <div style={{overflow: 'visible'}}>
             <div style={{height: '30px'}}></div>
-            <Form onSubmit={submitLogin} autoComplete="new-password" style={{width: '400px'}}>
+            <Form autoComplete="new-password" style={{width: '400px', overflow: 'visible'}}>
                 <Form.Group>
                     <Form.Label>Email</Form.Label>
                     <Form.Control autoComplete="unsupportedrandom" className="dark-form" type="text" placeholder="Enter email" onChange={(ev) => setEmail(ev.target.value)} value={email} />
@@ -45,9 +47,10 @@ function LoginForm({error}) {
                 </Form.Group>
             </Form>
             <div style={{height: '20px'}}></div>
-            {error_alert}
-            <div className="flex-row end">
-                <Button variant="outline-success" type="submit">
+            
+            <div className="flex-row center end" style={{overflow: 'visible'}}>
+                {error_alert}
+                <Button variant="outline-success" onClick={submitLogin}>
                     Login
                 </Button>
             </div>
@@ -136,16 +139,16 @@ function CreateAccount() {
     }
 
     return (
-        <div>
+        <div style={{overflow: 'visible'}}>
             <div style={{height: '30px'}}></div>
-            <Form onSubmit={onSubmit} autoComplete="new-password" style={{width: '400px'}}>
+            <Form onSubmit={onSubmit} autoComplete="new-password" style={{width: '400px', overflow: 'visible'}}>
                 <Form.Group>
                     <Form.Label>Name</Form.Label>
                     <Form.Control autoComplete="unsupportedrandom" className="dark-form" type="text" onChange={updateName} value={user.name} placeholder="Enter name" />
                     { errors.name ? 
                         <Form.Text className="text-danger">{errors.name}</Form.Text>
                     :
-                        <Form.Text className="text-muted">Choose any name!</Form.Text>
+                        <Form.Text className="text-muted">Choose any name! (as long as its shortish)</Form.Text>
                     }
                 </Form.Group>
 
@@ -169,7 +172,7 @@ function CreateAccount() {
                     }
                 </Form.Group>
                 
-                <div className="flex-row end">
+                <div className="flex-row end" style={{overflow: 'visible'}}>
                     <Button variant="outline-success" type="submit">
                         Sign Up
                     </Button>
@@ -197,10 +200,10 @@ export default function SignUp() {
                         <div className="flex-row" style={{width: '100%', height: '100%'}}>
                             <div className={`toggleHighlight ${toggle ? 'left' : 'right'}`}></div>
                             <div className="toggleText">
-                                <h5 style={{userSelect: 'none', cursor: 'inherit'}}>Sign Up</h5>
+                                <h5 className={`${toggle ? 'green' : ''}`} style={{userSelect: 'none', cursor: 'inherit'}}>Sign Up</h5>
                             </div>
                             <div className="toggleText">
-                                <h5 style={{userSelect: 'none', cursor: 'inherit'}}>Login</h5>
+                                <h5 className={`${toggle ? '' : 'green'}`} style={{userSelect: 'none', cursor: 'inherit'}}>Login</h5>
                             </div>
                         </div>
                     </div>

@@ -57,6 +57,7 @@ async function api_update(path, data) {
     },
     body: JSON.stringify(data)
   }
+
   let resp = await fetch(
     url + path, opts);
   return await resp.json();
@@ -90,6 +91,7 @@ export function api_login(email, password) {
         data: data.session,
       }
       store.dispatch(action);
+      return data.session.user_id;
     }
     else if (data.error) {
       let action = {
@@ -97,6 +99,7 @@ export function api_login(email, password) {
         data: data.error,
       };
       store.dispatch(action);
+      return false;
     }
   });
 }

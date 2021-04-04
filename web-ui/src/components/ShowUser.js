@@ -6,7 +6,7 @@ import { useParams, useHistory, Link } from 'react-router-dom';
 
 import { Table, Button, Row, Col, Form } from 'react-bootstrap';
 
-import { show_user, all_invites, create_file } from '../api';
+import { show_user, all_invites, create_file, delete_user, update_user } from '../api';
 
 import { connect } from 'react-redux';
 
@@ -14,6 +14,36 @@ import store from './../store';
 
 function ShowFiles({ user, invites }) {
     const history = useHistory();
+
+    const [pSearch, setPSearch] = useState("");
+    const [iSearch, setISearch] = useState("");
+
+    const [pLanguage, setPLanguage] = useState('0');
+    const [iLanguage, setILanguage] = useState('0');
+
+    const [togglePSearch, setTogglePSearch] = useState(false);
+    const [toggleISearch, setToggleISearch] = useState(false);
+
+    const [files, setFiles] = useState(user.files);
+    const [invitesFiltered, setInvitesFiltered] = useState(invites);
+
+    useEffect(() => {
+        if (togglePSearch) {
+            setFiles(user.files.filter((f) => {
+                console.log(f);
+                console.log(pLanguage);
+                let s1 = f.name.toUpperCase();
+                let search = pSearch.toUpperCase();
+                if (pLanguage === '0') {
+                    return s1.includes(search);
+                } else {
+                    return s1.includes(search) && (f.language == pLanguage);
+                }
+            }))
+        } else {
+            setFiles(user.files);
+        }
+    }, [user.files, pSearch, togglePSearch, pLanguage]);
 
     const d = {
         71: "Python",
@@ -30,15 +60,46 @@ function ShowFiles({ user, invites }) {
     return (
         <Row style={{paddingTop: "20px"}}>
             <Col sm={6} style={{overflow: 'visible'}}>
-                <h1 style={{paddingBottom: "20px", paddingLeft: "10px"}}>Personal Files</h1>
-
+                <div className="flex-row center space-between" style={{padding: "20px 10px"}}>
+                    <h1>Personal Files</h1>
+                    { togglePSearch ?
+                        <div className="closeIcon" onClick={() => {setTogglePSearch(false); setPSearch(""); setPLanguage('0')}}></div>
+                        :
+                        <div className="searchIcon" onClick={() => {setTogglePSearch(true)}}></div>
+                    }
+                </div>
+                { togglePSearch ? 
+                    <Form autoComplete="new-password" className='box inset' style={{padding: '10px', marginTop: '-10px', marginBottom: '20px'}}>
+                        <div className="flex-row space-between">
+                            <Form.Group style={{width: '45%', margin: '0px'}}>
+                                <Form.Control autoComplete="unsupportedrandom" className="dark-form green" type="text" value={pSearch} placeholder="Search by name" onChange={(ev) => {setPSearch(ev.target.value)}} />
+                            </Form.Group>
+                            <Form.Group style={{width: '45%', margin: '0px'}}>
+                                <Form.Control className="dark-form green" as="select" value={pLanguage} onChange={(ev) => {setPLanguage(ev.target.value)}}>
+                                    <option value={0}>Filter Language</option>
+                                    <option value={50}>C (GCC 9.2.0)</option>
+                                    <option value={54}>C++ (GCC 9.2.0)</option>
+                                    <option value={57}>Elixir</option>
+                                    <option value={62}>Java 13</option>
+                                    <option value={63}>JavaScript 12.14</option>
+                                    <option value={69}>Prolog (GNU 1.4.5)</option>
+                                    <option value={71}>Python 3</option>
+                                    <option value={72}>Ruby 2.7</option>
+                                    <option value={83}>Swift 5</option>
+                                </Form.Control>
+                            </Form.Group>
+                        </div>
+                    </Form>
+                    :
+                    <></>
+                }
                 {
-                    user.files.length === 0 ?
+                    files.length === 0 ?
                         <div className="fileDisplay">
-                            <p>No files yet...</p>
+                            <p>No files found</p>
                         </div>
                     :
-                    user.files.map((f) => {
+                    files.map((f) => {
                         return (
                             <div className="fileDisplay clickable" key={f.id} onClick={(ev) => {history.push(`/files/${f.id}`)}}>
                                 <div className="flex-row space-between">
@@ -56,7 +117,7 @@ function ShowFiles({ user, invites }) {
                 {
                     invites.length === 0 ?
                         <div className="fileDisplay default">
-                            <p>No files yet...</p>
+                            <p>No files found</p>
                         </div>
                     :
                     invites.map((i) => {
@@ -75,6 +136,32 @@ function ShowFiles({ user, invites }) {
     )
 }
 
+const compareInvites = (a, b) => {
+    var nameA = a.file.name.toUpperCase();
+    var nameB = b.file.name.toUpperCase();
+    if (nameA < nameB) {
+        return -1;
+    }
+    if (nameA > nameB) {
+        return 1;
+    }
+
+    return 0;
+}
+
+const compareFiles = (a, b) => {
+    var nameA = a.name.toUpperCase();
+    var nameB = b.name.toUpperCase();
+    if (nameA < nameB) {
+        return -1;
+    }
+    if (nameA > nameB) {
+        return 1;
+    }
+
+    return 0;
+}
+
 function ShowOther({ id }) {
 
     const history = useHistory();
@@ -91,6 +178,9 @@ function ShowOther({ id }) {
     useEffect(() => {
         show_user(id)
             .then((resp) => {
+
+                resp.files.sort(compareFiles);
+
                 setUser({
                     "name": resp.name,
                     "email": resp.email,
@@ -103,7 +193,9 @@ function ShowOther({ id }) {
             .finally(
                 all_invites()
                     .then((resp) => {
-                        setInvites(resp.filter((i) => i.email === user.email))
+                        let respFiltered = resp.filter((i) => i.email === user.email)
+                        respFiltered.sort(compareInvites)
+                        setInvites(respFiltered);
                     })
             );
     }, [id, user.email]);
@@ -137,8 +229,106 @@ function ShowOther({ id }) {
     )
 }
 
+function EditForm({ session, setEdit, edit, parentUser }) {
+    const history = useHistory();
+
+    const [user, setUser] = useState({
+        'name': parentUser.name,
+        'email': parentUser.email,
+    });
+
+    const [errors, setErrors] = useState({
+        'name': null,
+        'email': null,
+    });
+
+    function onSubmit(ev) {
+        ev.preventDefault();
+
+        if (user.name.length >= 10) {
+            let newErrors = Object.assign({}, errors);
+            newErrors['name'] = 'Name must be 10 characters or less';
+            setErrors(newErrors);
+            return
+        }
+        update_user(session.user_id, {
+            id: session.user_id,
+            user: user
+        }).then((resp) => {
+            if (resp.errors) {
+                let newErrors = Object.assign({}, errors);
+                if (resp.errors.name) {
+                    newErrors['name'] = resp.errors.name[0];
+                } else {
+                    newErrors['name'] = "";
+                }
+                
+                if (resp.errors.email) {
+                    newErrors['email'] = resp.errors.email[0];
+                } else {
+                    newErrors['email'] = "";
+                }
+
+                setErrors(newErrors);
+            } else {
+                history.go(0);
+            }
+        });
+    }
+
+    function deleteAccount(ev) {
+        delete_user(session.user_id).then((resp) => {
+            store.dispatch({type: 'session/clear'});
+            history.push("/");
+        })
+    }
+
+    function updateName(ev) {
+        let newUser = Object.assign({}, user);
+        newUser["name"] = ev.target.value;
+        setUser(newUser);
+    }
+
+    function updateEmail(ev) {
+        let newUser = Object.assign({}, user);
+        newUser["email"] = ev.target.value;
+        setUser(newUser);
+    }
+
+    return (
+        <Form autoComplete="new-password" style={{width: "100%", height: "100%", overflow: 'visible'}} onSubmit={onSubmit}>
+            <div className="flex-column space-between" style={{height: '100%'}}>
+            <h1>Edit Profile</h1>
+            <Row>
+                <Col style={{paddingLeft: '0px'}}>
+                    <Form.Group>
+                        <Form.Label>Name<span className="text-danger">{errors.name ? ` - ${errors.name}` : null }</span></Form.Label>
+                        <Form.Control autoComplete="unsupportedrandom" className="dark-form" type="text" onChange={updateName} value={user.name} placeholder="Enter name" />
+                    </Form.Group>
+                </Col>
+                <Col style={{paddingRight: '0px'}}>
+                    <Form.Group>
+                        <Form.Label>Email<span className="text-danger">{errors.email ? ` - ${errors.email}` : null }</span></Form.Label>
+                        <Form.Control autoComplete="unsupportedrandom" className="dark-form" type="email" onChange={updateEmail} value={user.email} placeholder="Enter email" />
+                    </Form.Group>
+                </Col>
+            </Row>
+
+            <div className="flex-row space-between" style={{overflow: 'visible'}}>
+                <Button variant="outline-light" className="tripleButton" onClick={() => {setEdit(!edit)}}>Cancel</Button>
+                <Button variant="outline-danger" className="tripleButton" onClick={deleteAccount}>Delete Acct</Button>
+                <Button variant="outline-success" className="tripleButton" type="submit">Save Changes</Button>
+            </div>
+            </div>
+        </Form>
+    )
+}
+
+
 function ShowYourself({ session }) {
     const history = useHistory();
+
+    const [edit, setEdit] = useState(false);
 
     const [user, setUser] = useState({
         "name": "",
@@ -161,19 +351,7 @@ function ShowYourself({ session }) {
     useEffect(() => {
         show_user(session.user_id)
             .then((resp) => {
-                resp.files.sort((a, b) => {
-                    var nameA = a.name.toUpperCase(); // ignore upper and lowercase
-                    var nameB = b.name.toUpperCase(); // ignore upper and lowercase
-                    if (nameA < nameB) {
-                        return -1;
-                    }
-                    if (nameA > nameB) {
-                        return 1;
-                    }
-
-                    // names must be equal
-                    return 0;
-                })
+                resp.files.sort(compareFiles);
                 setUser({
                     "name": resp.name,
                     "email": resp.email,
@@ -183,13 +361,14 @@ function ShowYourself({ session }) {
             .finally(
                 all_invites()
                     .then((resp) => {
-                        setInvites(resp.filter((i) => i.email === user.email))
+                        let respFiltered = resp.filter((i) => i.email === user.email)
+                        respFiltered.sort(compareInvites)
+                        setInvites(respFiltered);                    
                     })
             );
     }, [session.user_id, user.email]);
 
-    function logout(ev) {
-        ev.preventDefault();
+    function logout() {
         store.dispatch({type: 'session/clear'});
         history.push("/");
     }
@@ -273,15 +452,21 @@ function ShowYourself({ session }) {
                     </div>
                 </Col>
                 <Col sm={6}>
-                    <div className="flex-column end box" style={{width: '100%', overflow: 'visible'}}>
-                        <h1 className="personalUsername">{session.name}</h1>
-                        <p>{session.email}</p>
-
-                        <div className="flex-row end" style={{overflow: 'visible'}}>
-                            <Button variant="outline-light" className="profileButton">Edit Profile</Button>
-                            <Button variant="outline-danger" className="profileButton" onClick={logout}>Logout</Button>
+                    {   !edit ?
+                        <div className="flex-column end box" style={{width: '100%', overflow: 'visible'}}>
+                            <h1 className="personalUsername">{user.name}</h1>
+                            <p>{user.email}</p>
+    
+                            <div className="flex-row end" style={{overflow: 'visible'}}>
+                                <Button variant="outline-light" className="profileButton" onClick={() => {setEdit(!edit)}}>Edit Profile</Button>
+                                <Button variant="outline-danger" className="profileButton" onClick={logout}>Logout</Button>
+                            </div>
                         </div>
-                    </div>
+                        :
+                        <div className="flex-column end box inset" style={{width: '100%', height: '240px',overflow: 'visible'}}>
+                            <EditForm session={session} setEdit={setEdit} edit={edit} parentUser={user}/>
+                        </div>
+                    }
                 </Col>
             </Row>
             <Row>
