@@ -90,7 +90,7 @@ defmodule PearcodeWeb.InviteController do
         |> put_status(:created)
         |> put_resp_header("location", Routes.invite_path(conn, :show, invite))
         |> render("show.json", invite: invite)
-      {:exists, %Invite{} = invite} ->
+      {:error, %Invite{} = invite} ->
         conn
         |> render("show.json", invite: invite)
       _ ->

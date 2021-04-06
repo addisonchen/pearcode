@@ -44,7 +44,7 @@ function Home({session}) {
     }
 
     return (
-        <div className="home">
+        <div className="maxSize">
             <div className="flex-row">
                 <div className="padding" style={{width: '45vw'}}>
                     <div className="flex-row center space-between">

@@ -58,7 +58,6 @@ defmodule Pearcode.Invites do
 
   """
   def create_invite(attrs \\ %{}) do
-    IO.inspect attrs
     invite = Repo.get_by(Invite, [email: attrs["email"], file_id: attrs["file_id"]])
 
     if invite do

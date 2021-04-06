@@ -6,13 +6,13 @@ import { useParams, useHistory, Link } from 'react-router-dom';
 
 import { Table, Button, Row, Col, Form } from 'react-bootstrap';
 
-import { show_user, all_invites, create_file, delete_user, update_user } from '../api';
+import { show_user, all_invites, create_file, delete_user, update_user, create_invite, delete_file } from '../api';
 
 import { connect } from 'react-redux';
 
 import store from './../store';
 
-function ShowFiles({ user, invites }) {
+function ShowFiles({ user, setUser, invites, owner }) {
     const history = useHistory();
 
     const [pSearch, setPSearch] = useState("");
@@ -30,8 +30,6 @@ function ShowFiles({ user, invites }) {
     useEffect(() => {
         if (togglePSearch) {
             setFiles(user.files.filter((f) => {
-                console.log(f);
-                console.log(pLanguage);
                 let s1 = f.name.toUpperCase();
                 let search = pSearch.toUpperCase();
                 if (pLanguage === '0') {
@@ -45,6 +43,20 @@ function ShowFiles({ user, invites }) {
         }
     }, [user.files, pSearch, togglePSearch, pLanguage]);
 
+    useEffect(() => {
+        setInvitesFiltered(invites.filter((i) => {
+            let s1 = i.file.name.toUpperCase();
+            let search = iSearch.toUpperCase();
+            if (iLanguage === '0') {
+                return s1.includes(search) && (i.email != user.email);
+            } else {
+                console.log(`${i.email} | ${user.email}`)
+                console.log(`${i.file.language} | ${iLanguage}`)
+                return s1.includes(search) && (i.file.language == iLanguage) && (i.email != user.email);
+            }
+        }));
+    }, [invites, iSearch, toggleISearch, iLanguage]);
+
     const d = {
         71: "Python",
         83: "Swift",
@@ -56,6 +68,21 @@ function ShowFiles({ user, invites }) {
         69: "Prolog",
         72: "Ruby"
     };
+
+    function deleteFile(ev) {
+        ev.stopPropagation();
+        delete_file(ev.target.value).then(()=>{
+            show_user(user.user_id)
+            .then((resp) => {
+                resp.files.sort(compareFiles);
+                setUser({
+                    "name": resp.name,
+                    "email": resp.email,
+                    "files": resp.files
+                })
+            })
+        })
+    }
 
     return (
         <Row style={{paddingTop: "20px"}}>
@@ -101,10 +128,15 @@ function ShowFiles({ user, invites }) {
                     :
                     files.map((f) => {
                         return (
-                            <div className="fileDisplay clickable" key={f.id} onClick={(ev) => {history.push(`/files/${f.id}`)}}>
-                                <div className="flex-row space-between">
+                            <div className="fileDisplay clickable" key={f.id} onClick={() => {history.push(`/files/${f.id}`)}}>
+                                <div className="flex-row space-between" style={{overflow: 'visible'}}>
                                     <p className="fileDisplayText">{f.name}</p>
-                                    <p>{d[f.language]}</p>
+                                    <p className="fileDisplayLanguage">{d[f.language]}</p>
+                                    { owner ?
+                                        <Button className="fileDisplayDelete" variant="outline-danger" onClick={deleteFile} value={f.id}>Delete</Button>
+                                        :
+                                        <div style={{display: "none"}}></div>
+                                    }
                                 </div>
                             </div>
                         )
@@ -112,20 +144,51 @@ function ShowFiles({ user, invites }) {
                 }
             </Col>
             <Col sm={6}>
-                <h1 style={{paddingBottom: "20px", paddingLeft: "10px"}}>Shared With</h1>
-
+                <div className="flex-row center space-between" style={{padding: "20px 10px"}}>
+                    <h1>Invited To</h1>
+                    { toggleISearch ?
+                        <div className="closeIcon" onClick={() => {setToggleISearch(false); setISearch(""); setILanguage('0')}}></div>
+                        :
+                        <div className="searchIcon" onClick={() => {setToggleISearch(true)}}></div>
+                    }
+                </div>
+                { toggleISearch ? 
+                    <Form autoComplete="new-password" className='box inset' style={{padding: '10px', marginTop: '-10px', marginBottom: '20px'}}>
+                        <div className="flex-row space-between">
+                            <Form.Group style={{width: '45%', margin: '0px'}}>
+                                <Form.Control autoComplete="unsupportedrandom" className="dark-form green" type="text" value={iSearch} placeholder="Search by name" onChange={(ev) => {setISearch(ev.target.value)}} />
+                            </Form.Group>
+                            <Form.Group style={{width: '45%', margin: '0px'}}>
+                                <Form.Control className="dark-form green" as="select" value={iLanguage} onChange={(ev) => {setILanguage(ev.target.value)}}>
+                                    <option value={0}>Filter Language</option>
+                                    <option value={50}>C (GCC 9.2.0)</option>
+                                    <option value={54}>C++ (GCC 9.2.0)</option>
+                                    <option value={57}>Elixir</option>
+                                    <option value={62}>Java 13</option>
+                                    <option value={63}>JavaScript 12.14</option>
+                                    <option value={69}>Prolog (GNU 1.4.5)</option>
+                                    <option value={71}>Python 3</option>
+                                    <option value={72}>Ruby 2.7</option>
+                                    <option value={83}>Swift 5</option>
+                                </Form.Control>
+                            </Form.Group>
+                        </div>
+                    </Form>
+                    :
+                    <></>
+                }
                 {
-                    invites.length === 0 ?
-                        <div className="fileDisplay default">
+                    invitesFiltered.length === 0 ?
+                        <div className="fileDisplay">
                             <p>No files found</p>
                         </div>
                     :
-                    invites.map((i) => {
+                    invitesFiltered.map((i) => {
                         return (
-                            <div className="fileDisplay clickable" key={i.id} onClick={(ev) => {history.push(`/files/${i.file.id}`)}}>
+                            <div className="fileDisplay clickable" key={i.file.id} onClick={(ev) => {history.push(`/files/${i.file.id}`)}}>
                                 <div className="flex-row space-between">
-                                    <p className="fileDisplayText">{i.file.name}</p> 
-                                    <p>{i.file.user.name}</p>
+                                    <p className="fileDisplayText">{i.file.name}</p>
+                                    <p>{d[i.file.language]}</p>
                                 </div>
                             </div>
                         )
@@ -224,7 +287,7 @@ function ShowOther({ id }) {
                     }
                 </Col>
             </Row>
-            <ShowFiles user={user} invites={invites} />
+            <ShowFiles user={user} setUser={null} invites={invites} owner={false}/>
         </div>
     )
 }
@@ -395,6 +458,10 @@ function ShowYourself({ session }) {
                 console.log(resp);
             } else {
                 setError(false);
+                create_invite({
+                    'email': session.email,
+                    'file_id': resp.data.id
+                });
                 history.push(`/files/${resp.data.id}`);
             }
         });
@@ -440,7 +507,7 @@ function ShowYourself({ session }) {
                                 { error ? 
                                     <Row>
                                         <Col>
-                                            <Form.Text className="text-danger">Oops! Something went wrong...</Form.Text>
+                                            <Form.Text className="text-danger">Name can't be blank</Form.Text>
                                         </Col>
                                     </Row>
                                 :
@@ -472,7 +539,7 @@ function ShowYourself({ session }) {
             <Row>
                 
             </Row>
-            <ShowFiles user={user} invites={invites} />
+            <ShowFiles user={user} setUser={setUser} invites={invites} owner={true}/>
         </div>
     )
 }
