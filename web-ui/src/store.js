@@ -36,7 +36,6 @@ function session(state = restore_session(), action) {
   switch (action.type) {
     case 'session/set':
       save_session(action.data);
-      console.log(action.data)
       return action.data;
     case 'session/clear':
       delete_session();

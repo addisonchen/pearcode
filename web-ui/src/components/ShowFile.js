@@ -4,9 +4,9 @@ import HomeIcon from './HomeIcon';
 
 import { useParams, useHistory, Link } from 'react-router-dom';
 
-import { Table, Button, Row, Col, Form } from 'react-bootstrap';
+import { Table, Button, Row, Col, Form, OverlayTrigger, Tooltip} from 'react-bootstrap';
 
-import { show_user, all_invites, create_file, show_file, delete_invite, create_invite, delete_comment, create_comment } from '../api';
+import { show_user, all_invites, create_file, show_file, update_file, delete_invite, create_invite, delete_comment, create_comment, delete_file } from '../api';
 
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-python";
@@ -17,29 +17,163 @@ import { connect } from 'react-redux';
 
 import store from './../store';
 
-function SocialInfo({ session, file, reload }) {
+function NoSession({ id }) {
+    // todo sign up / login
+    return (
+        <p>{id} todo no session page</p>
+    )
+}
 
-    const [updateFile, setUpdateFile] = useState({
-        'name': file.name,
-        'language': file.language,
-        'description': file.description
-    });
+function EditorInfo({ session, file, language, setLanguage, save, body }) {
+    const history = useHistory();
+
+    const fileOwner = session.user_id === file.user_id;
+
+    const copyLink = `https://pearcode.swoogity.com/files/${file.id}`;
+
+    const [toggle, setToggle] = useState([true, false]);
+
+    function toggleBox(idx) {
+        let t1 = [...toggle];
+        t1[idx] = !t1[idx];
+        setToggle(t1);
+    }
+
+    function downloadFile(name) {
+        let map = {
+            50: '.c',
+            54: '.cpp',
+            57: '.ex',
+            62: '.java',
+            63: '.js',
+            69: '.pl',
+            71: '.py',
+            72: '.rb',
+            83: '.swift'
+        }
+        let ext = map[language]
+        const element = document.createElement("a");
+        const file = new Blob([body], {type: 'text/plain'});
+        element.href = URL.createObjectURL(file);
+        element.download = `${name}${ext}`;
+        document.body.appendChild(element); // Required for this to work in FireFox
+        element.click();
+    }
+
+    function deleteFile(id) {
+        delete_file(id).then(()=>{
+            // TODO
+            console.log('fix deleting when others are viewing!');
+            history.push(`/users/${session.user_id}`);
+        })
+    }
+
+    return (
+        <div className="editorInfoContainer padding">
+            <div style={{minHeight: '45px', width: '100%'}}>
+                <div className="flex-row center space-between" style={{width: '100%', overflow: 'visible', minHeight: '38px'}}>
+                    <Button variant="outline-info" onClick={() => {history.push(`/users/${session.user_id}`)}} style={{textOverflow: 'clip', whiteSpace: 'nowrap'}}>Your Profile</Button>
+                    <h1 className="headingEmoji" onClick={() => {history.push('/')}}>🍐</h1>
+                </div>
+            </div>
+            
+            { fileOwner ?
+                <div className="box inset slimPadding">
+                    <div className="flex-row center space-between" style={{width: '100%', padding: '0px 20px', overflow: 'visible'}}>
+                        <OverlayTrigger placement="top" overlay={<Tooltip>Save</Tooltip>}>
+                            <h1 className="headingEmoji small" onClick={() => {save()}}>💾</h1>
+                        </OverlayTrigger>
+                        <OverlayTrigger placement="top" overlay={<Tooltip>Copy Link</Tooltip>}>
+                            <h1 className="headingEmoji small">📎</h1>
+                        </OverlayTrigger>
+                        <OverlayTrigger placement="top" overlay={<Tooltip>Download File</Tooltip>}>
+                            <h1 className="headingEmoji small" onClick={() => {downloadFile(file.name)}}>🖨️</h1>
+                        </OverlayTrigger>
+                        <OverlayTrigger placement="top" overlay={<Tooltip>Delete File</Tooltip>}>
+                            <h1 className="headingEmoji small" onClick={() => {deleteFile(file.id)}}>🗑️</h1>
+                        </OverlayTrigger>
+                    </div>
+                </div>
+            :
+                <div className="box inset slimPadding">
+                    <div className="flex-row center space-between" style={{width: '100%', padding: '0px 20px', overflow: 'visible'}}>
+                        <OverlayTrigger placement="top" overlay={<Tooltip>Not file owner</Tooltip>}>
+                            <h1 className="headingEmoji small disabled">💾</h1>
+                        </OverlayTrigger>
+                        <OverlayTrigger placement="top" overlay={<Tooltip>Copy Link</Tooltip>}>
+                            <h1 className="headingEmoji small" onClick={() => {navigator.clipboard.writeText(copyLink)}}>📎</h1>
+                        </OverlayTrigger>
+                        <OverlayTrigger placement="top" overlay={<Tooltip>Download File</Tooltip>}>
+                            <h1 className="headingEmoji small" onClick={() => {downloadFile(file.name)}}>🖨️</h1>
+                        </OverlayTrigger>
+                        <OverlayTrigger placement="top" overlay={<Tooltip>Not file owner</Tooltip>}>
+                            <h1 className="headingEmoji small disabled">🗑️</h1>
+                        </OverlayTrigger>
+                    </div>
+                </div>
+            }
+
+            <div className="box slimPadding flex-column boxHeadingContainer" style={{margin: '10px 0px'}}>
+                <Form.Control className="dark-form muted" as="select" value={language} onChange={(ev) => {setLanguage(ev.target.value)}}>
+                    <option value={50}>C (GCC 9.2.0)</option>
+                    <option value={54}>C++ (GCC 9.2.0)</option>
+                    <option value={57}>Elixir</option>
+                    <option value={62}>Java 13</option>
+                    <option value={63}>JavaScript 12.14</option>
+                    <option value={69}>Prolog (GNU 1.4.5)</option>
+                    <option value={71}>Python 3</option>
+                    <option value={72}>Ruby 2.7</option>
+                    <option value={83}>Swift 5</option>
+                </Form.Control>
+                <div style={{height: '10px'}}></div>
+                <Button variant="outline-info">Execute</Button>
+            </div>
+
+            <div className={`box slimPadding flex-column boxHeadingContainer ${toggle[0] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
+                <div className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(0)}}>
+                    <h5 className="text-muted toggleBoxHeading">Activity</h5>
+                    { toggle[0] ?
+                        <h5 className="toggleBoxHeading text-muted dSign">-</h5>
+                        :
+                        <h5 className="toggleBoxHeading text-muted dSign">+</h5>
+                    }
+                </div>
+                <div className="insetBorder" style={{height: '200px', overflow: 'scroll'}}>
+                    {/* put stuff in this box boi */}
+                </div>
+            </div>
+
+            <div className={`box slimPadding flex-column boxHeadingContainer ${toggle[1] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
+                <div className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(1)}}>
+                    <h5 className="text-muted toggleBoxHeading">Results</h5>
+                    { toggle[1] ?
+                        <h5 className="toggleBoxHeading text-muted dSign">-</h5>
+                        :
+                        <h5 className="toggleBoxHeading text-muted dSign">+</h5>
+                    }
+                </div>
+                <div className="insetBorder" style={{height: '500px', overflow: 'scroll'}}>
+                    {/* put stuff in this box boi */}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function SocialInfo({ session, file, reload, updateFile, setUpdateFile, fileNameError }) {
+
+    const history = useHistory();
 
     const [inviteEmail, setInviteEmail] = useState("");
 
     const [newComment, setNewComment] = useState("");
 
     const fileOwner = session.user_id === file.user_id;
-    
-    useEffect(() => {
-        setUpdateFile({
-            'name': file.name,
-            'language': file.language,
-            'description': file.description
-        });
-    }, [file])
 
-    const [fileNameError, setFileNameError] = useState(false);
+    const [toggle, setToggle] = useState([false, false, false]);
+
+    const invited = file.invites.some((i) => {return i.email === session.email})
 
     function modifyName(ev) {
         let f1 = Object.assign({}, updateFile);
@@ -89,31 +223,39 @@ function SocialInfo({ session, file, reload }) {
         })
     }
 
-    function save() {
-        if (updateFile.name.length < 1) {
-            setFileNameError('A name is required');
-        } else {
-
-        }
+    function toggleBox(idx) {
+        let t1 = [...toggle];
+        t1[idx] = !t1[idx];
+        setToggle(t1);
     }
 
     return (
         <div className="socialInfoContainer padding">
-            <div style={{minHeight: '60px'}}>
+            <div style={{minHeight: '85px', width: '100%'}}>
                 { fileOwner ?
                     <Form onSubmit={(ev) => (ev.preventDefault())} autoComplete="new-password" style={{width: '100%'}}>
-                        <Form.Group>
-                            <Form.Control autoComplete="unsupportedrandom" className="header-form" type="email" value={updateFile.name} onChange={modifyName} placeholder="Enter name" />
-                            { fileNameError ? <Form.Text className="text-danger">{fileNameError}</Form.Text> : <></> }
-                        </Form.Group>
+                        <Form.Control autoComplete="unsupportedrandom" className="header-form" type="email" value={updateFile.name} onChange={modifyName} placeholder="Enter name" />
                     </Form>
                     :
                     <h1 className="fileNameText">{file.name}</h1>
                 }
-            </div>
+                { fileNameError ?
+                    <p className="text-danger"> {fileNameError}</p>
 
-            <div className="box slimPadding" id="descriptionContainer" style={{margin: '10px 0px'}}>
-                <h5 className="text-muted descriptionHeading">Description</h5>
+                :
+                    <p className="text-muted">Owner: <span className="hoverGreen" style={{cursor: 'pointer'}} onClick={() => history.push(`/users/${file.user_id}`)}>{file.user_name}</span></p>
+                }
+            </div>
+            
+            <div className={`box slimPadding boxHeadingContainer ${toggle[0] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
+                <div className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(0)}}>
+                    <h5 className="text-muted toggleBoxHeading">Description</h5>
+                    { toggle[0] ?
+                        <h5 className="toggleBoxHeading text-muted dSign">-</h5>
+                        :
+                        <h5 className="toggleBoxHeading text-muted dSign">+</h5>
+                    }
+                </div>
                 <div style={{height: '10px'}}></div>
                 { fileOwner ?
                     <Form onSubmit={(ev) => (ev.preventDefault())} autoComplete="new-password" style={{width: '100%'}}>
@@ -128,9 +270,16 @@ function SocialInfo({ session, file, reload }) {
 
             <div style={{height: '10px'}}></div>
 
-            <div className="box slimPadding flex-column" id="invitesContainer" style={{margin: '10px 0px', overflow: 'visible'}}>
-                <h5 className="text-muted invitesHeading">Invites</h5>
-                <div className="insetBorder" style={{height: `${fileOwner ? '100px' : '150px'}`, overflow: 'scroll'}}>
+            <div className={`box slimPadding flex-column boxHeadingContainer ${toggle[1] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
+                <div className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(1)}}>
+                    <h5 className="text-muted toggleBoxHeading">Invites</h5>
+                    { toggle[1] ?
+                        <h5 className="toggleBoxHeading text-muted dSign">-</h5>
+                        :
+                        <h5 className="toggleBoxHeading text-muted dSign">+</h5>
+                    }
+                </div>
+                <div className="insetBorder" style={{height: `${fileOwner ? '200px' : '250px'}`, overflow: 'scroll'}}>
                     {
                         file.invites.map((i) => {
                             return (
@@ -146,7 +295,7 @@ function SocialInfo({ session, file, reload }) {
                         })
                     }
                 </div>
-                { fileOwner ?
+                { (fileOwner || invited) ?
                     <Form onSubmit={submitInvite} autoComplete="new-password" style={{width: '100%', overflow: 'visible'}}>
                         <div className="flex-row" style={{overflow: 'visible'}}>
                             <Form.Control autoComplete="unsupportedrandom" className="dark-form muted" type="text" value={inviteEmail} onChange={(ev) => {setInviteEmail(ev.target.value)}} placeholder="Invite email" />
@@ -161,15 +310,22 @@ function SocialInfo({ session, file, reload }) {
 
             <div style={{height: '10px'}}></div>
 
-            <div className="box slimPadding" id="commentsContainer" style={{flexGrow: 1, width: '100%', minHeight: '300px', margin: '10px 0px', display: 'flex'}}>
+            <div className={`box slimPadding boxHeadingContainer ${toggle[2] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
                 <div className="flex-column" style={{overflow: 'visible', width: '100%'}}>
-                    <h5 className="text-muted commentsHeading">Comments</h5>
-                    <div className="insetBorder" style={{flexGrow: '1'}}>
+                    <div style={{minHeight: '24px'}} className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(2)}}>
+                        <h5 className="text-muted toggleBoxHeading">Comments</h5>
+                        { toggle[2] ?
+                            <h5 className="toggleBoxHeading text-muted dSign">-</h5>
+                            :
+                            <h5 className="toggleBoxHeading text-muted dSign">+</h5>
+                        }
+                    </div>
+                    <div className="insetBorder" style={{height: `${(fileOwner || invited) ? '200px' : '250px'}`, overflow: 'scroll'}}>
                         {
                             file.comments.map((c) => {
                                 return (
-                                    <div className="flex-row space-between inviteDisplay" key={c.id}>
-                                        <p className="text-muted" style={{wordWrap: 'break-word', textOverflow: 'ellipsis', maxWidth: '180px'}}><span className="commentUserName">{c.user.name}: </span>{c.body}</p>
+                                    <div className="flex-row space-between inviteDisplay" style={{marginBottom: '5px'}} key={c.id}>
+                                        <p className="text-muted" style={{wordWrap: 'break-word', textOverflow: 'ellipsis', maxWidth: '170px'}}><span className="commentUserName">{c.user.name}: </span>{c.body}</p>
                                         { ((fileOwner) || (c.user.id === session.user_id))?
                                             <Button className="inviteDisplayDelete" style={{marginTop: '4px'}} variant="outline-danger" onClick={deleteComment} value={c.id}>Delete</Button>
                                             :
@@ -202,6 +358,15 @@ function ShowFile({session}) {
 
     const [body, setBody] = useState("");
 
+    const [fileNameError, setFileNameError] = useState(false);
+
+    const [updateFile, setUpdateFile] = useState({
+        'name': "",
+        'description': ""
+    });
+
+    const [language, setLanguage] = useState(50);
+
     const [found, setFound] = useState(true);
     const [file, setFile] = useState({
         "name": "",
@@ -231,6 +396,13 @@ function ShowFile({session}) {
                     "id": id,
                     "alert": null
                 });
+
+                setUpdateFile({
+                    'name': resp.name,
+                    'description': resp.description,
+                });
+
+                setLanguage(resp.language)
             })
             .catch((e) => {
                 if (e instanceof SyntaxError) {
@@ -262,8 +434,26 @@ function ShowFile({session}) {
             });
     }
 
-
-
+    function save() {
+        if (updateFile.name.length < 1) {
+            setFileNameError('A file name is required');
+        } else {
+            setFileNameError(false);
+            update_file(id, {
+                'id': id,
+                'file': {
+                    'name': updateFile.name,
+                    'description': updateFile.description,
+                    'language': language
+                }
+            }).then((resp) => {
+                if (resp.errors) {
+                    setFileNameError('Something went wrong');
+                    console.log(resp);
+                }
+            })
+        }
+    }
 
     function bodyChange(val) {
         setBody(val);
@@ -274,7 +464,7 @@ function ShowFile({session}) {
             <div className="maxSize">
                 <div className="flex-row">
                     <div className="fileInfoContainer">
-                        <SocialInfo session={session} file={file} reload={reload} />
+                        <SocialInfo session={session} file={file} reload={reload} updateFile={updateFile} setUpdateFile={setUpdateFile} fileNameError={fileNameError} />
                     </div>
                     <div className="fileAceContainer">
                         <AceEditor 
@@ -293,8 +483,12 @@ function ShowFile({session}) {
                                 }}
                             />
                     </div>
-                    <div className="fileInfoContainer padding">
-                        <HomeIcon />
+                    <div className="fileInfoContainer">
+                        { session ?
+                            <EditorInfo session={session} file={file} language={language} setLanguage={setLanguage} save={save} body={body}/>
+                        :
+                            <NoSession id={id}/>
+                        }
                     </div>
                 </div>
             </div>
@@ -302,6 +496,8 @@ function ShowFile({session}) {
     } else {
         return (
             <div className="maxSize padding">
+                <HomeIcon />
+                <div style={{height: '30px'}}></div>
                 <p>file with id {id} not found</p>
             </div>
         )

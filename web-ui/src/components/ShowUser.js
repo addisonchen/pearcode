@@ -128,14 +128,16 @@ function ShowFiles({ user, setUser, invites, owner }) {
                     :
                     files.map((f) => {
                         return (
-                            <div className="fileDisplay clickable" key={f.id} onClick={() => {history.push(`/files/${f.id}`)}}>
+                            <div className={`fileDisplay clickable ${owner ? 'owner' : ''}`} key={f.id} onClick={() => {history.push(`/files/${f.id}`)}}>
                                 <div className="flex-row space-between" style={{overflow: 'visible'}}>
                                     <p className="fileDisplayText">{f.name}</p>
-                                    <p className="fileDisplayLanguage">{d[f.language]}</p>
                                     { owner ?
-                                        <Button className="fileDisplayDelete" variant="outline-danger" onClick={deleteFile} value={f.id}>Delete</Button>
+                                        <>
+                                            <p className="fileDisplayLanguage">{d[f.language]}</p>
+                                            <Button className="fileDisplayDelete" variant="outline-danger" onClick={deleteFile} value={f.id}>Delete</Button>
+                                        </>
                                         :
-                                        <div style={{display: "none"}}></div>
+                                        <p className="fileDisplayLanguage">{d[f.language]}</p>
                                     }
                                 </div>
                             </div>
@@ -272,7 +274,7 @@ function ShowOther({ id }) {
                 <Col> 
                     { found ?
                         <div className="flex-column end" style={{width: '100%', overflow: 'visible'}}>
-                            <div className="flex-column end box" style={{width: 'auto'}}>
+                            <div className="flex-column end box" style={{width: 'auto', minWidth: '400px'}}>
                                 <h1 className="username">{user.name}</h1>
                                 <p>{user.email}</p>
                             </div>

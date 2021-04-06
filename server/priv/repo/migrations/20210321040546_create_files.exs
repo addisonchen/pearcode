@@ -4,9 +4,9 @@ defmodule Pearcode.Repo.Migrations.CreateFiles do
   def change do
     create table(:files) do
       add :name, :string, null: false
-      add :body, :text, null: false, default: ""
+      add :body, :text, default: ""
       add :language, :integer, null: false
-      add :description, :text, null: false, default: ""
+      add :description, :text, default: ""
       add :user_id, references(:users, on_delete: :delete_all), null: false
 
       timestamps()

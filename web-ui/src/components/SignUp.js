@@ -16,8 +16,8 @@ function LoginForm({error}) {
     const [email, setEmail] = useState("");
     const [pass, setPass] = useState("");
 
-    function submitLogin() {
-        console.log('here');
+    function submitLoginEv(ev) {
+        ev.preventDefault();
         api_login(email, pass).then((res) => {
             if (res) {
                 history.push(`/users/${res}`);
@@ -36,7 +36,7 @@ function LoginForm({error}) {
     return (
         <div style={{overflow: 'visible'}}>
             <div style={{height: '30px'}}></div>
-            <Form autoComplete="new-password" style={{width: '400px', overflow: 'visible'}}>
+            <Form onSubmit={submitLoginEv} autoComplete="new-password" style={{width: '400px', overflow: 'visible'}}>
                 <Form.Group>
                     <Form.Label>Email</Form.Label>
                     <Form.Control autoComplete="unsupportedrandom" className="dark-form" type="text" placeholder="Enter email" onChange={(ev) => setEmail(ev.target.value)} value={email} />
@@ -45,15 +45,14 @@ function LoginForm({error}) {
                     <Form.Label>Password</Form.Label>
                     <Form.Control autoComplete="unsupportedrandom" className="dark-form" type="password" placeholder="Enter password" onChange={(ev) => setPass(ev.target.value)} value={pass} />
                 </Form.Group>
+                <div style={{height: '20px'}}></div>
+                <div className="flex-row center end" style={{overflow: 'visible'}}>
+                    {error_alert}
+                    <Button variant="outline-success" type="submit">
+                        Login
+                    </Button>
+                </div>
             </Form>
-            <div style={{height: '20px'}}></div>
-            
-            <div className="flex-row center end" style={{overflow: 'visible'}}>
-                {error_alert}
-                <Button variant="outline-success" onClick={submitLogin}>
-                    Login
-                </Button>
-            </div>
         </div>
     );
 }
@@ -113,8 +112,10 @@ function CreateAccount() {
                 }
                 setErrors(newErrors);
             } else {
-                api_login(user.email, user.password).then(() => {
-                    history.push("/");
+                api_login(user.email, user.password).then((res) => {
+                    if (res) {
+                        history.push(`/users/${res}`);
+                    }
                 })
             }
         });
