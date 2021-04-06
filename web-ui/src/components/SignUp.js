@@ -16,7 +16,7 @@ function LoginForm({error}) {
     const [email, setEmail] = useState("");
     const [pass, setPass] = useState("");
 
-    function submitLoginEv(ev) {
+    function submitLogin(ev) {
         ev.preventDefault();
         api_login(email, pass).then((res) => {
             if (res) {
@@ -36,7 +36,7 @@ function LoginForm({error}) {
     return (
         <div style={{overflow: 'visible'}}>
             <div style={{height: '30px'}}></div>
-            <Form onSubmit={submitLoginEv} autoComplete="new-password" style={{width: '400px', overflow: 'visible'}}>
+            <Form onSubmit={submitLogin} autoComplete="new-password" style={{width: '400px', overflow: 'visible'}}>
                 <Form.Group>
                     <Form.Label>Email</Form.Label>
                     <Form.Control autoComplete="unsupportedrandom" className="dark-form" type="text" placeholder="Enter email" onChange={(ev) => setEmail(ev.target.value)} value={email} />

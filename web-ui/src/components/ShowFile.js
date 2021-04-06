@@ -4,9 +4,9 @@ import HomeIcon from './HomeIcon';
 
 import { useParams, useHistory, Link } from 'react-router-dom';
 
-import { Table, Button, Row, Col, Form, OverlayTrigger, Tooltip} from 'react-bootstrap';
+import { Button, Form, OverlayTrigger, Tooltip} from 'react-bootstrap';
 
-import { show_user, all_invites, create_file, show_file, update_file, delete_invite, create_invite, delete_comment, create_comment, delete_file } from '../api';
+import { api_login, show_file, update_file, delete_invite, create_invite, delete_comment, create_comment, delete_file, create_user } from '../api';
 
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-python";
@@ -17,10 +17,281 @@ import { connect } from 'react-redux';
 
 import store from './../store';
 
-function NoSession({ id }) {
-    // todo sign up / login
+function Login({ id, file }) {
+
+    const history = useHistory();
+
+    const [toggle, setToggle] = useState([false, false, false]);
+
+    const [loginInfo, setLoginInfo] = useState({
+        'email': '',
+        'password': ''
+    })
+
+    const [loginError, setLoginError] = useState(false);
+
+    const [user, setUser] = useState({
+        'name': "",
+        'email': "",
+        'password': ""
+    });
+
+    const [errors, setErrors] = useState({
+        'name': null,
+        'email': null,
+        'password': null
+    })
+    
+    function submitLogin(ev) {
+        ev.preventDefault();
+        api_login(loginInfo.email, loginInfo.password).then((res) => {
+            if (res) {
+                setLoginError(false);
+                history.push(`/files/${id}`);
+            } else {
+                setLoginError(true);
+            }
+        });
+    }
+
+    function toggleBox(idx) {
+        let t1 = [...toggle];
+        t1[idx] = !t1[idx];
+        setToggle(t1);
+    }
+
+    function updateLoginEmail(ev) {
+        let l1 = Object.assign({}, loginInfo);
+        l1['email'] = ev.target.value;
+        setLoginInfo(l1);
+    }
+
+    function updateLoginPassword(ev) {
+        let l1 = Object.assign({}, loginInfo);
+        l1['password'] = ev.target.value;
+        setLoginInfo(l1);
+    }
+
+    function submitSignUp(ev) {
+        ev.preventDefault();
+        if (user.password.length < 8) {
+            let newErrors = Object.assign({}, errors);
+            newErrors['password'] = 'password must be 8 characters or longer';
+            setErrors(newErrors);
+            return
+        }
+
+        if (user.name.length >= 10) {
+            let newErrors = Object.assign({}, errors);
+            newErrors['name'] = 'Name must be 10 characters or less';
+            setErrors(newErrors);
+            return
+        }
+
+        create_user(user).then((resp) => {
+            if (resp.errors) {
+                let newErrors = Object.assign({}, errors);
+                if (resp.errors.name) {
+                    newErrors['name'] = resp.errors.name[0];
+                } else {
+                    newErrors['name'] = "";
+                }
+                
+                if (resp.errors.email) {
+                    newErrors['email'] = resp.errors.email[0];
+                } else {
+                    newErrors['email'] = "";
+                }
+
+                if (resp.errors.password) {
+                    newErrors['password'] = resp.errors.password[0];
+                } else {
+                    newErrors['password'] = "";
+                }
+                setErrors(newErrors);
+            } else {
+                api_login(user.email, user.password).then((res) => {
+                    if (res) {
+                        history.push(`/files/${id}`);
+                    }
+                })
+            }
+        });
+    }
+
+    function updateName(ev) {
+        let newUser = Object.assign({}, user);
+        newUser["name"] = ev.target.value;
+        setUser(newUser);
+    }
+
+    function updateEmail(ev) {
+        let newUser = Object.assign({}, user);
+        newUser["email"] = ev.target.value;
+        setUser(newUser);
+    }
+
+    function updatePassword(ev) {
+        let newUser = Object.assign({}, user);
+        newUser["password"] = ev.target.value;
+        setUser(newUser);
+    }
+
     return (
-        <p>{id} todo no session page</p>
+        <div className="socialInfoContainer padding">
+            <div style={{minHeight: '85px', width: '100%'}}>
+                <h1 className="fileNameText">{file.name}</h1>
+                <p className="text-muted">Owner: <span className="hoverGreen" style={{cursor: 'pointer'}} onClick={() => history.push(`/users/${file.user_id}`)}>{file.user_email}</span></p>
+            </div>
+            
+            <div className={`box slimPadding boxHeadingContainer ${toggle[0] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
+                <div className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(0)}}>
+                    <h5 className="text-muted toggleBoxHeading">Description</h5>
+                    { toggle[0] ?
+                        <h5 className="toggleBoxHeading text-muted dSign">-</h5>
+                        :
+                        <h5 className="toggleBoxHeading text-muted dSign">+</h5>
+                    }
+                </div>
+                <div style={{height: '10px'}}></div>
+                
+                <div className="text-muted insetBorder" style={{height: '150px', overflowY: 'scroll', wordWrap: 'break-word'}}>{file.description ? file.description : 'None'}</div>
+            </div>
+
+            <div className={`box slimPadding boxHeadingContainer ${toggle[1] ? '' : 'closed'}`}  style={{margin: '10px 0px'}}>
+                <div className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(1)}}>
+                    <h5 className="toggleBoxHeading green">Login</h5>
+                    { toggle[1] ?
+                        <h5 className="toggleBoxHeading dSign ">-</h5>
+                        :
+                        <h5 className="toggleBoxHeading dSign">+</h5>
+                    }
+                </div>
+                <div style={{height: '10px'}}></div>
+                <Form onSubmit={submitLogin} autoComplete="new-password" style={{marginBottom: '10px', overflow: 'visible'}}>
+                    <Form.Group>
+                        <Form.Text className="text-muted">Email</Form.Text>
+                        <Form.Control type="email" placeholder="Enter Email"  autoComplete="unsupportedrandom" className="dark-form" onChange={updateLoginEmail} value={loginInfo.email} />
+                    </Form.Group>
+
+                    <Form.Group>
+                        <Form.Text className="text-muted">Password</Form.Text>
+                        <Form.Control type="password" placeholder="Enter Password"  autoComplete="unsupportedrandom" className="dark-form" onChange={updateLoginPassword} value={loginInfo.password} />
+                    </Form.Group>
+                    <div className="flex-row center space-between" style={{overflow: 'visible'}}>
+                        { loginError ?
+                            <Form.Text className="text-danger">Invalid email or password</Form.Text>
+                            :
+                            <div></div>
+                        }
+                        <Button type="submit" variant="outline-success">Login</Button>
+                    </div>
+                </Form>
+            </div>
+
+            <div className={`box slimPadding boxHeadingContainer ${toggle[2] ? '' : 'closed'}`}  style={{margin: '10px 0px'}}>
+                <div className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(2)}}>
+                    <h5 className="toggleBoxHeading green">Sign Up</h5>
+                    { toggle[2] ?
+                        <h5 className="toggleBoxHeading dSign">-</h5>
+                        :
+                        <h5 className="toggleBoxHeading dSign">+</h5>
+                    }
+                </div>
+                <div style={{height: '10px'}}></div>
+                <Form onSubmit={submitSignUp} autoComplete="new-password" style={{marginBottom: '10px', overflow: 'visible'}}>
+                    <Form.Group>
+                        <Form.Text className="text-muted">Name</Form.Text>
+                        <Form.Control autoComplete="unsupportedrandom" className="dark-form" type="text" onChange={updateName} value={user.name} placeholder="Enter name" />
+                        { errors.name ? 
+                            <Form.Text className="text-danger">{errors.name}</Form.Text>
+                        :
+                            <></>
+                        }
+                    </Form.Group>
+
+                    <Form.Group>
+                        <Form.Text className="text-muted">Email</Form.Text>
+                        <Form.Control autoComplete="unsupportedrandom" className="dark-form" type="email" onChange={updateEmail} value={user.email} placeholder="Enter email" />
+                        { errors.email ? 
+                            <Form.Text className="text-danger">{errors.email}</Form.Text>
+                        :
+                            <></>
+                        }
+                    </Form.Group>
+
+                    <Form.Group>
+                        <Form.Text className="text-muted">Password</Form.Text>
+                        <Form.Control autoComplete="unsupportedrandom" className="dark-form" type="password" onChange={updatePassword} value={user.password} placeholder="Choose a password" />
+                        { errors.password ? 
+                            <Form.Text className="text-danger">{errors.password}</Form.Text>
+                        :
+                            <></>
+                        }
+                    </Form.Group>
+                    
+                    <div className="flex-row end" style={{overflow: 'visible'}}>
+                        <Button variant="outline-success" type="submit">
+                            Sign Up
+                        </Button>
+                    </div>
+                </Form>
+            </div>
+        </div>
+    )
+
+}
+
+function NoSession({ id, language }) {
+
+    const history = useHistory();
+
+
+    return (
+        <div className="editorInfoContainer padding">
+            <div style={{minHeight: '45px', width: '100%'}}>
+                <div className="flex-row center space-between" style={{width: '100%', overflow: 'visible', minHeight: '38px'}}>
+                    <Button variant="outline-info" onClick={() => {history.push('/signup')}} style={{textOverflow: 'clip', whiteSpace: 'nowrap'}}>Login | Sign Up</Button>
+                    <h1 className="headingEmoji" onClick={() => {history.push('/')}}>🍐</h1>
+                </div>
+            </div>
+
+            <div className="box inset slimPadding">
+                <div className="flex-row center space-between" style={{width: '100%', padding: '0px 20px', overflow: 'visible'}}>
+                    <OverlayTrigger placement="top" overlay={<Tooltip>Not logged in</Tooltip>}>
+                        <h1 className="headingEmoji small disabled">💾</h1>
+                    </OverlayTrigger>
+                    <OverlayTrigger placement="top" overlay={<Tooltip>Not logged in</Tooltip>}>
+                        <h1 className="headingEmoji small disabled">📎</h1>
+                    </OverlayTrigger>
+                    <OverlayTrigger placement="top" overlay={<Tooltip>Not logged in</Tooltip>}>
+                        <h1 className="headingEmoji small disabled">🖨️</h1>
+                    </OverlayTrigger>
+                    <OverlayTrigger placement="top" overlay={<Tooltip>Not Logged in</Tooltip>}>
+                        <h1 className="headingEmoji small disabled">🗑️</h1>
+                    </OverlayTrigger>
+                </div>
+            </div>
+
+            <div className="box slimPadding flex-column boxHeadingContainer" style={{margin: '10px 0px'}}>
+                <Form.Control disabled className="dark-form muted" as="select" value={language}>
+                    <option value={50}>C (GCC 9.2.0)</option>
+                    <option value={54}>C++ (GCC 9.2.0)</option>
+                    <option value={57}>Elixir</option>
+                    <option value={62}>Java 13</option>
+                    <option value={63}>JavaScript 12.14</option>
+                    <option value={69}>Prolog (GNU 1.4.5)</option>
+                    <option value={71}>Python 3</option>
+                    <option value={72}>Ruby 2.7</option>
+                    <option value={83}>Swift 5</option>
+                </Form.Control>
+            </div>
+
+            <div className="box slimPadding" style={{margin: '10px 0px'}}>
+                <p className="text-danger" style={{fontSize: '.9em'}}>Log in to or create an invited account to modify and run this file</p>
+            </div>
+
+        </div>
     )
 }
 
@@ -31,7 +302,7 @@ function EditorInfo({ session, file, language, setLanguage, save, body }) {
 
     const copyLink = `https://pearcode.swoogity.com/files/${file.id}`;
 
-    const [toggle, setToggle] = useState([true, false]);
+    const [toggle, setToggle] = useState([false, false]);
 
     function toggleBox(idx) {
         let t1 = [...toggle];
@@ -169,6 +440,13 @@ function SocialInfo({ session, file, reload, updateFile, setUpdateFile, fileName
 
     const [newComment, setNewComment] = useState("");
 
+    if (!session) {
+        session = {
+            'user_id': null,
+            'email': null
+        }
+    }
+
     const fileOwner = session.user_id === file.user_id;
 
     const [toggle, setToggle] = useState([false, false, false]);
@@ -268,8 +546,6 @@ function SocialInfo({ session, file, reload, updateFile, setUpdateFile, fileName
                 }
             </div>
 
-            <div style={{height: '10px'}}></div>
-
             <div className={`box slimPadding flex-column boxHeadingContainer ${toggle[1] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
                 <div className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(1)}}>
                     <h5 className="text-muted toggleBoxHeading">Invites</h5>
@@ -307,8 +583,6 @@ function SocialInfo({ session, file, reload, updateFile, setUpdateFile, fileName
                     <></>
                 }
             </div>
-
-            <div style={{height: '10px'}}></div>
 
             <div className={`box slimPadding boxHeadingContainer ${toggle[2] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
                 <div className="flex-column" style={{overflow: 'visible', width: '100%'}}>
@@ -464,7 +738,12 @@ function ShowFile({session}) {
             <div className="maxSize">
                 <div className="flex-row">
                     <div className="fileInfoContainer">
-                        <SocialInfo session={session} file={file} reload={reload} updateFile={updateFile} setUpdateFile={setUpdateFile} fileNameError={fileNameError} />
+                        { session ?
+                            <SocialInfo session={session} file={file} reload={reload} updateFile={updateFile} setUpdateFile={setUpdateFile} fileNameError={fileNameError} />
+                        :
+                            <Login id={id} file={file} />
+                        }
+                   
                     </div>
                     <div className="fileAceContainer">
                         <AceEditor 
@@ -480,6 +759,7 @@ function ShowFile({session}) {
                                 setOptions={{
                                     enableLiveAutocompletion: true, 
                                     showLineNumbers: true,
+                                    readOnly: (session ? false : true)
                                 }}
                             />
                     </div>
@@ -487,7 +767,7 @@ function ShowFile({session}) {
                         { session ?
                             <EditorInfo session={session} file={file} language={language} setLanguage={setLanguage} save={save} body={body}/>
                         :
-                            <NoSession id={id}/>
+                            <NoSession id={id} language={language} />
                         }
                     </div>
                 </div>

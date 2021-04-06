@@ -388,6 +388,29 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 0 0 0.2rem rgba(202, 203, 78, 0.5) !important;
 }
 
+.btn-outline-warning {
+  color: #6c757d;
+  border-color: #6c757d;
+  cursor: default !important;
+}
+
+.btn-outline-warning:hover {
+  background-color: #202020;
+  color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-outline-warning:focus {
+  box-shadow: none;
+}
+
+.btn-outline-warning:not(:disabled):not(.disabled):active {
+  background-color: #202020;
+  color: #6c757d;
+  border-color: #6c757d;
+  box-shadow: none !important;
+}
+
 .searchIcon {
   width: 25px;
   height: 25px;
