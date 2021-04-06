@@ -99,21 +99,21 @@ function SocialInfo({ session, file, reload }) {
 
     return (
         <div className="socialInfoContainer padding">
-            { fileOwner ?
-                <Form onSubmit={(ev) => (ev.preventDefault())} autoComplete="new-password" style={{width: '100%'}}>
-                    <Form.Group>
-                        <Form.Control autoComplete="unsupportedrandom" className="header-form" type="email" value={updateFile.name} onChange={modifyName} placeholder="Enter name" />
-                        { fileNameError ? <Form.Text className="text-danger">{fileNameError}</Form.Text> : <></> }
-                    </Form.Group>
-                </Form>
-                :
-                <h1 className="fileNameText">{file.name}</h1>
-            }
+            <div style={{minHeight: '60px'}}>
+                { fileOwner ?
+                    <Form onSubmit={(ev) => (ev.preventDefault())} autoComplete="new-password" style={{width: '100%'}}>
+                        <Form.Group>
+                            <Form.Control autoComplete="unsupportedrandom" className="header-form" type="email" value={updateFile.name} onChange={modifyName} placeholder="Enter name" />
+                            { fileNameError ? <Form.Text className="text-danger">{fileNameError}</Form.Text> : <></> }
+                        </Form.Group>
+                    </Form>
+                    :
+                    <h1 className="fileNameText">{file.name}</h1>
+                }
+            </div>
 
-            <div style={{height: '10px'}}></div>
-
-            <div className="box slimPadding" style={{margin: '10px 0px'}}>
-                <h5 className="text-muted">Description</h5>
+            <div className="box slimPadding" id="descriptionContainer" style={{margin: '10px 0px'}}>
+                <h5 className="text-muted descriptionHeading">Description</h5>
                 <div style={{height: '10px'}}></div>
                 { fileOwner ?
                     <Form onSubmit={(ev) => (ev.preventDefault())} autoComplete="new-password" style={{width: '100%'}}>
@@ -128,8 +128,8 @@ function SocialInfo({ session, file, reload }) {
 
             <div style={{height: '10px'}}></div>
 
-            <div className="box slimPadding flex-column" style={{margin: '10px 0px', overflow: 'visible'}}>
-                <h5 className="text-muted">Invites</h5>
+            <div className="box slimPadding flex-column" id="invitesContainer" style={{margin: '10px 0px', overflow: 'visible'}}>
+                <h5 className="text-muted invitesHeading">Invites</h5>
                 <div className="insetBorder" style={{height: `${fileOwner ? '100px' : '150px'}`, overflow: 'scroll'}}>
                     {
                         file.invites.map((i) => {
@@ -161,17 +161,17 @@ function SocialInfo({ session, file, reload }) {
 
             <div style={{height: '10px'}}></div>
 
-            <div className="box slimPadding" style={{flex: 1, width: '100%', minHeight: '300px', margin: '10px 0px'}}>
-                <div className="flex-column" style={{height: '100%'}}>
-                    <h5 className="text-muted">Comments</h5>
-                    <div className="commentsViewContainer">
+            <div className="box slimPadding" id="commentsContainer" style={{flexGrow: 1, width: '100%', minHeight: '300px', margin: '10px 0px', display: 'flex'}}>
+                <div className="flex-column" style={{overflow: 'visible', width: '100%'}}>
+                    <h5 className="text-muted commentsHeading">Comments</h5>
+                    <div className="insetBorder" style={{flexGrow: '1'}}>
                         {
                             file.comments.map((c) => {
                                 return (
-                                    <div className="flex-row center space-between inviteDisplay" key={c.id}>
-                                        <p className="text-muted" style={{wordWrap: 'break-word', textOverflow: 'ellipsis', maxWidth: '200px'}}><span className="">{c.user.name}: </span>{c.body}</p>
-                                        { (fileOwner) ?
-                                            <Button className="inviteDisplayDelete" variant="outline-danger" onClick={deleteComment} value={c.id}>Delete</Button>
+                                    <div className="flex-row space-between inviteDisplay" key={c.id}>
+                                        <p className="text-muted" style={{wordWrap: 'break-word', textOverflow: 'ellipsis', maxWidth: '180px'}}><span className="commentUserName">{c.user.name}: </span>{c.body}</p>
+                                        { ((fileOwner) || (c.user.id === session.user_id))?
+                                            <Button className="inviteDisplayDelete" style={{marginTop: '4px'}} variant="outline-danger" onClick={deleteComment} value={c.id}>Delete</Button>
                                             :
                                             <></>
                                         }
@@ -185,7 +185,7 @@ function SocialInfo({ session, file, reload }) {
                             <div className="flex-row" style={{overflow: 'visible'}}>
                                 <Form.Control autoComplete="unsupportedrandom" className="dark-form muted" type="text" value={newComment} onChange={(ev) => {setNewComment(ev.target.value)}} placeholder="Comment" />
                                 <div style={{width: '15px'}}></div>
-                                <Button variant="outline-info" type="submit">Invite</Button>
+                                <Button variant="outline-info" type="submit">Post</Button>
                             </div>
                         </Form>
                         :
