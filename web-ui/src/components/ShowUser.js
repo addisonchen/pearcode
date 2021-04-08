@@ -452,10 +452,8 @@ function ShowYourself({ session }) {
         ev.preventDefault();
 
         create_file(file).then((resp) => {
-            console.log(file);
             if (resp.errors) {
                 setError(true);
-                console.log(resp);
             } else {
                 setError(false);
                 create_invite({
