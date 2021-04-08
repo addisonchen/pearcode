@@ -319,7 +319,6 @@ function NoSession({ id, language }) {
     )
 }
 
-// todo: result, connecting status, execute
 function EditorInfo({ session, file, language, setLanguage, save, body, participants, result, executing, connected }) {
     const history = useHistory();
     console.log(participants)
