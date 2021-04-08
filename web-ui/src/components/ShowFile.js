@@ -2,20 +2,33 @@ import { useState, useEffect } from 'react'
 
 import HomeIcon from './HomeIcon';
 
-import { useParams, useHistory, Link } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 
 import { Button, Form, OverlayTrigger, Tooltip} from 'react-bootstrap';
 
 import { api_login, show_file, update_file, delete_invite, create_invite, delete_comment, create_comment, delete_file, create_user } from '../api';
 
+import { ch_join, ch_update, ch_leave, ch_stop_typing, ch_execute, ch_language } from '../socket.js'
+
+import "ace-builds";
+import 'ace-builds/webpack-resolver';
 import AceEditor from "react-ace";
+
+
+// language imports
+import "ace-builds/src-noconflict/mode-c_cpp";
+import "ace-builds/src-noconflict/mode-elixir";
+import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/mode-javascript";
+import "ace-builds/src-noconflict/mode-prolog";
 import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/mode-ruby";
+import "ace-builds/src-noconflict/mode-swift";
+
 import "ace-builds/src-noconflict/theme-pastel_on_dark";
 import "ace-builds/src-min-noconflict/ext-language_tools";
 
 import { connect } from 'react-redux';
-
-import store from './../store';
 
 function Login({ id, file }) {
 
@@ -74,15 +87,24 @@ function Login({ id, file }) {
 
     function submitSignUp(ev) {
         ev.preventDefault();
+
         if (user.password.length < 8) {
-            let newErrors = Object.assign({}, errors);
+            let newErrors = {
+                'name': null,
+                'email': null,
+                'password': null
+            }
             newErrors['password'] = 'password must be 8 characters or longer';
             setErrors(newErrors);
             return
         }
 
         if (user.name.length >= 10) {
-            let newErrors = Object.assign({}, errors);
+            let newErrors = {
+                'name': null,
+                'email': null,
+                'password': null
+            }
             newErrors['name'] = 'Name must be 10 characters or less';
             setErrors(newErrors);
             return
@@ -146,11 +168,11 @@ function Login({ id, file }) {
             
             <div className={`box slimPadding boxHeadingContainer ${toggle[0] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
                 <div className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(0)}}>
-                    <h5 className="text-muted toggleBoxHeading">Description</h5>
+                    <h5 className={`${toggle[0] ? '' : 'text-muted'} toggleBoxHeading`}>Description</h5>
                     { toggle[0] ?
-                        <h5 className="toggleBoxHeading text-muted dSign">-</h5>
+                        <h5 className={`${toggle[0] ? '' : 'text-muted'} toggleBoxHeading dSign`}>-</h5>
                         :
-                        <h5 className="toggleBoxHeading text-muted dSign">+</h5>
+                        <h5 className={`${toggle[0] ? '' : 'text-muted'} toggleBoxHeading dSign`}>+</h5>
                     }
                 </div>
                 <div style={{height: '10px'}}></div>
@@ -402,11 +424,11 @@ function EditorInfo({ session, file, language, setLanguage, save, body }) {
 
             <div className={`box slimPadding flex-column boxHeadingContainer ${toggle[0] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
                 <div className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(0)}}>
-                    <h5 className="text-muted toggleBoxHeading">Activity</h5>
+                    <h5 className={`${toggle[0] ? '' : 'text-muted'} toggleBoxHeading`}>Activity</h5>
                     { toggle[0] ?
-                        <h5 className="toggleBoxHeading text-muted dSign">-</h5>
+                        <h5 className={`${toggle[0] ? '' : 'text-muted'} toggleBoxHeading dSign`}>-</h5>
                         :
-                        <h5 className="toggleBoxHeading text-muted dSign">+</h5>
+                        <h5 className={`${toggle[0] ? '' : 'text-muted'} toggleBoxHeading dSign`}>+</h5>
                     }
                 </div>
                 <div className="insetBorder" style={{height: '200px', overflow: 'scroll'}}>
@@ -416,11 +438,11 @@ function EditorInfo({ session, file, language, setLanguage, save, body }) {
 
             <div className={`box slimPadding flex-column boxHeadingContainer ${toggle[1] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
                 <div className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(1)}}>
-                    <h5 className="text-muted toggleBoxHeading">Results</h5>
+                    <h5 className={`${toggle[1] ? '' : 'text-muted'} toggleBoxHeading`}>Results</h5>
                     { toggle[1] ?
-                        <h5 className="toggleBoxHeading text-muted dSign">-</h5>
+                        <h5 className={`${toggle[1] ? '' : 'text-muted'} toggleBoxHeading dSign`}>-</h5>
                         :
-                        <h5 className="toggleBoxHeading text-muted dSign">+</h5>
+                        <h5 className={`${toggle[0] ? '' : 'text-muted'} toggleBoxHeading dSign`}>+</h5>
                     }
                 </div>
                 <div className="insetBorder" style={{height: '500px', overflow: 'scroll'}}>
@@ -527,11 +549,11 @@ function SocialInfo({ session, file, reload, updateFile, setUpdateFile, fileName
             
             <div className={`box slimPadding boxHeadingContainer ${toggle[0] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
                 <div className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(0)}}>
-                    <h5 className="text-muted toggleBoxHeading">Description</h5>
+                    <h5 className={`${toggle[0] ? '' : 'text-muted'} toggleBoxHeading`}>Description</h5>
                     { toggle[0] ?
-                        <h5 className="toggleBoxHeading text-muted dSign">-</h5>
+                        <h5 className={`${toggle[0] ? '' : 'text-muted'} toggleBoxHeading dSign`}>-</h5>
                         :
-                        <h5 className="toggleBoxHeading text-muted dSign">+</h5>
+                        <h5 className={`${toggle[0] ? '' : 'text-muted'} toggleBoxHeading dSign`}>+</h5>
                     }
                 </div>
                 <div style={{height: '10px'}}></div>
@@ -548,11 +570,11 @@ function SocialInfo({ session, file, reload, updateFile, setUpdateFile, fileName
 
             <div className={`box slimPadding flex-column boxHeadingContainer ${toggle[1] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
                 <div className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(1)}}>
-                    <h5 className="text-muted toggleBoxHeading">Invites</h5>
+                    <h5 className={`${toggle[1] ? '' : 'text-muted'} toggleBoxHeading`}>Invites</h5>
                     { toggle[1] ?
-                        <h5 className="toggleBoxHeading text-muted dSign">-</h5>
+                        <h5 className={`${toggle[1] ? '' : 'text-muted'} toggleBoxHeading dSign`}>-</h5>
                         :
-                        <h5 className="toggleBoxHeading text-muted dSign">+</h5>
+                        <h5 className={`${toggle[1] ? '' : 'text-muted'} toggleBoxHeading dSign`}>+</h5>
                     }
                 </div>
                 <div className="insetBorder" style={{height: `${fileOwner ? '200px' : '250px'}`, overflow: 'scroll'}}>
@@ -587,11 +609,11 @@ function SocialInfo({ session, file, reload, updateFile, setUpdateFile, fileName
             <div className={`box slimPadding boxHeadingContainer ${toggle[2] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
                 <div className="flex-column" style={{overflow: 'visible', width: '100%'}}>
                     <div style={{minHeight: '24px'}} className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(2)}}>
-                        <h5 className="text-muted toggleBoxHeading">Comments</h5>
+                        <h5 className={`${toggle[2] ? '' : 'text-muted'} toggleBoxHeading`}>Comments</h5>
                         { toggle[2] ?
-                            <h5 className="toggleBoxHeading text-muted dSign">-</h5>
+                            <h5 className={`${toggle[2] ? '' : 'text-muted'} toggleBoxHeading dSign`}>-</h5>
                             :
-                            <h5 className="toggleBoxHeading text-muted dSign">+</h5>
+                            <h5 className={`${toggle[2] ? '' : 'text-muted'} toggleBoxHeading dSign`}>+</h5>
                         }
                     </div>
                     <div className="insetBorder" style={{height: `${(fileOwner || invited) ? '200px' : '250px'}`, overflow: 'scroll'}}>
@@ -676,7 +698,11 @@ function ShowFile({session}) {
                     'description': resp.description,
                 });
 
+                setBody(resp.body);
+
                 setLanguage(resp.language)
+
+                
             })
             .catch((e) => {
                 if (e instanceof SyntaxError) {
@@ -718,7 +744,8 @@ function ShowFile({session}) {
                 'file': {
                     'name': updateFile.name,
                     'description': updateFile.description,
-                    'language': language
+                    'language': language,
+                    'body': body
                 }
             }).then((resp) => {
                 if (resp.errors) {
@@ -731,6 +758,59 @@ function ShowFile({session}) {
 
     function bodyChange(val) {
         setBody(val);
+    }
+
+    function idToMode(id) {
+
+        if (typeof id === 'string') {
+            switch (id) {
+                case '50':
+                    return 'c_cpp';
+                case '54':
+                    return 'c_cpp';
+                case '57':
+                    return 'elixir';
+                case '62':
+                    return 'java';
+                case '63':
+                    return 'javascript';
+                case '69':
+                    return 'prolog';
+                case '71':
+                    return 'python';
+                case '72':
+                    return 'ruby';
+                case '83':
+                    return 'swift';
+                default:
+                    console.log(`idToMode - unkown language id: ${id}`);
+                    return 'python'
+            }
+        } else {
+            switch (id) {
+                case 50:
+                    return 'c_cpp';
+                case 54:
+                    return 'c_cpp';
+                case 57:
+                    return 'elixir';
+                case 62:
+                    return 'java';
+                case 63:
+                    return 'javascript';
+                case 69:
+                    return 'prolog';
+                case 71:
+                    return 'python';
+                case 72:
+                    return 'ruby';
+                case 83:
+                    return 'swift';
+                default:
+                    console.log(`idToMode - unkown language id: ${id}`);
+                    return 'python'
+            }
+        }
     }
 
     if (found) {
@@ -747,7 +827,7 @@ function ShowFile({session}) {
                     </div>
                     <div className="fileAceContainer">
                         <AceEditor 
-                                mode="python" 
+                                mode={idToMode(language)}
                                 theme="pastel_on_dark" 
                                 height="100vh"
                                 width="100%"

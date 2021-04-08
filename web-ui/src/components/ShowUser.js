@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react'
 
 import HomeIcon from './HomeIcon';
 
-import { useParams, useHistory, Link } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 
-import { Table, Button, Row, Col, Form } from 'react-bootstrap';
+import { Button, Row, Col, Form } from 'react-bootstrap';
 
 import { show_user, all_invites, create_file, delete_user, update_user, create_invite, delete_file } from '../api';
 
@@ -55,7 +55,7 @@ function ShowFiles({ user, setUser, invites, owner }) {
                 return s1.includes(search) && (i.file.language == iLanguage) && (i.email != user.email);
             }
         }));
-    }, [invites, iSearch, toggleISearch, iLanguage]);
+    }, [invites, iSearch, toggleISearch, iLanguage, user.email]);
 
     const d = {
         71: "Python",
@@ -228,8 +228,6 @@ const compareFiles = (a, b) => {
 }
 
 function ShowOther({ id }) {
-
-    const history = useHistory();
 
     const [found, setFound] = useState(true);
     const [user, setUser] = useState({
@@ -532,7 +530,7 @@ function ShowYourself({ session }) {
                             </div>
                         </div>
                         :
-                        <div className="flex-column end box inset" style={{width: '100%', height: '240px',overflow: 'visible'}}>
+                        <div className="flex-column end box inset" style={{width: '100%', height: '247px',overflow: 'visible'}}>
                             <EditForm session={session} setEdit={setEdit} edit={edit} parentUser={user}/>
                         </div>
                     }
@@ -548,7 +546,6 @@ function ShowYourself({ session }) {
 
 function ShowUser({session}) {
     const { id } = useParams();
-    const history = useHistory();
 
     if (session) {
         return (session.user_id == id ? <ShowYourself session={session} /> : <ShowOther id={id} />);

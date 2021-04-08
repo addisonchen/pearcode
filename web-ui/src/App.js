@@ -1,7 +1,6 @@
 import { Container } from 'react-bootstrap';
 import { Switch, Route } from 'react-router-dom';
 
-import Nav from './components/Nav';
 import Home from './components/Home';
 import SignUp from './components/SignUp';
 import ShowUser from './components/ShowUser';
@@ -10,7 +9,6 @@ import ShowFile from './components/ShowFile';
 function App() {
   return (
     <>
-      {/*<Nav />*/}
       <Container fluid className="mainContainer">
         <Switch>
           <Route exact path="/">

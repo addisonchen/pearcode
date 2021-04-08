@@ -2,14 +2,13 @@ import { useState } from 'react';
 
 import HomeIcon from './HomeIcon';
 
-import { useHistory, Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
-import { Form, Button, Alert } from 'react-bootstrap';
+import { Form, Button } from 'react-bootstrap';
 
-import { create_user, api_login, fetch_users } from '../api';
+import { create_user, api_login } from '../api';
 
 import { connect } from 'react-redux';
-import Home from './Home';
 
 function LoginForm({error}) {
     const history = useHistory();
@@ -196,24 +195,26 @@ export default function SignUp() {
         <div className="windowSize padding">
             <HomeIcon />
             <div className="loginContainer">
-                <div className="box wa">
-                    <div className="toggleContainer" onClick={handleToggle}>
-                        <div className="flex-row" style={{width: '100%', height: '100%'}}>
-                            <div className={`toggleHighlight ${toggle ? 'left' : 'right'}`}></div>
-                            <div className="toggleText">
-                                <h5 className={`${toggle ? 'green' : ''}`} style={{userSelect: 'none', cursor: 'inherit'}}>Sign Up</h5>
-                            </div>
-                            <div className="toggleText">
-                                <h5 className={`${toggle ? '' : 'green'}`} style={{userSelect: 'none', cursor: 'inherit'}}>Login</h5>
+                <div style={{minHeight: '520px', overflow: 'visible'}}>
+                    <div className="box wa">
+                        <div className="toggleContainer" onClick={handleToggle}>
+                            <div className="flex-row" style={{width: '100%', height: '100%'}}>
+                                <div className={`toggleHighlight ${toggle ? 'left' : 'right'}`}></div>
+                                <div className="toggleText">
+                                    <h5 className={`${toggle ? 'green' : ''}`} style={{userSelect: 'none', cursor: 'inherit'}}>Sign Up</h5>
+                                </div>
+                                <div className="toggleText">
+                                    <h5 className={`${toggle ? '' : 'green'}`} style={{userSelect: 'none', cursor: 'inherit'}}>Login</h5>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    { toggle ? 
-                        <CreateAccount />
-                        :
-                        <Login />
-                    }
+                        { toggle ? 
+                            <CreateAccount />
+                            :
+                            <Login />
+                        }
+                    </div>
                 </div>
             </div>
         </div>
