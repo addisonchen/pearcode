@@ -61,6 +61,7 @@ function Login({ id, file }) {
             if (res) {
                 setLoginError(false);
                 history.push(`/files/${id}`);
+                ch_leave();
             } else {
                 setLoginError(true);
             }
@@ -135,6 +136,7 @@ function Login({ id, file }) {
                 api_login(user.email, user.password).then((res) => {
                     if (res) {
                         history.push(`/files/${id}`);
+                        ch_leave();
                     }
                 })
             }
@@ -163,7 +165,7 @@ function Login({ id, file }) {
         <div className="socialInfoContainer padding">
             <div style={{minHeight: '85px', width: '100%'}}>
                 <h1 className="fileNameText">{file.name}</h1>
-                <p className="text-muted">Owner: <span className="hoverGreen" style={{cursor: 'pointer'}} onClick={() => history.push(`/users/${file.user_id}`)}>{file.user_email}</span></p>
+                <p className="text-muted">Owner: <span className="hoverGreen" style={{cursor: 'pointer'}} onClick={() => {history.push(`/users/${file.user_id}`); ch_leave();}}>{file.user_email}</span></p>
             </div>
             
             <div className={`box slimPadding boxHeadingContainer ${toggle[0] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
@@ -273,8 +275,8 @@ function NoSession({ id, language }) {
         <div className="editorInfoContainer padding">
             <div style={{minHeight: '45px', width: '100%'}}>
                 <div className="flex-row center space-between" style={{width: '100%', overflow: 'visible', minHeight: '38px'}}>
-                    <Button variant="outline-info" onClick={() => {history.push('/signup')}} style={{textOverflow: 'clip', whiteSpace: 'nowrap'}}>Login | Sign Up</Button>
-                    <h1 className="headingEmoji" onClick={() => {history.push('/')}}>🍐</h1>
+                    <Button variant="outline-info" onClick={() => {history.push('/signup'); ch_leave();}} style={{textOverflow: 'clip', whiteSpace: 'nowrap'}}>Login | Sign Up</Button>
+                    <h1 className="headingEmoji" onClick={() => {history.push('/'); ch_leave();}}>🍐</h1>
                 </div>
             </div>
 
@@ -317,8 +319,9 @@ function NoSession({ id, language }) {
     )
 }
 
-function EditorInfo({ session, file, language, setLanguage, save, body }) {
+function EditorInfo({ session, file, language, setLanguage, save, body, participants }) {
     const history = useHistory();
+    console.log(participants)
 
     const fileOwner = session.user_id === file.user_id;
 
@@ -358,6 +361,7 @@ function EditorInfo({ session, file, language, setLanguage, save, body }) {
             // TODO
             console.log('fix deleting when others are viewing!');
             history.push(`/users/${session.user_id}`);
+            ch_leave();
         })
     }
 
@@ -365,8 +369,8 @@ function EditorInfo({ session, file, language, setLanguage, save, body }) {
         <div className="editorInfoContainer padding">
             <div style={{minHeight: '45px', width: '100%'}}>
                 <div className="flex-row center space-between" style={{width: '100%', overflow: 'visible', minHeight: '38px'}}>
-                    <Button variant="outline-info" onClick={() => {history.push(`/users/${session.user_id}`)}} style={{textOverflow: 'clip', whiteSpace: 'nowrap'}}>Your Profile</Button>
-                    <h1 className="headingEmoji" onClick={() => {history.push('/')}}>🍐</h1>
+                    <Button variant="outline-info" onClick={() => {history.push(`/users/${session.user_id}`); ch_leave();}} style={{textOverflow: 'clip', whiteSpace: 'nowrap'}}>Your Profile</Button>
+                    <h1 className="headingEmoji" onClick={() => {history.push('/'); ch_leave();}}>🍐</h1>
                 </div>
             </div>
             
@@ -407,7 +411,7 @@ function EditorInfo({ session, file, language, setLanguage, save, body }) {
             }
 
             <div className="box slimPadding flex-column boxHeadingContainer" style={{margin: '10px 0px'}}>
-                <Form.Control className="dark-form muted" as="select" value={language} onChange={(ev) => {setLanguage(ev.target.value)}}>
+                <Form.Control className="dark-form muted" as="select" value={language} onChange={(ev) => {setLanguage(ev.target.value); ch_language(ev.target.value);}}>
                     <option value={50}>C (GCC 9.2.0)</option>
                     <option value={54}>C++ (GCC 9.2.0)</option>
                     <option value={57}>Elixir</option>
@@ -543,7 +547,7 @@ function SocialInfo({ session, file, reload, updateFile, setUpdateFile, fileName
                     <p className="text-danger"> {fileNameError}</p>
 
                 :
-                    <p className="text-muted">Owner: <span className="hoverGreen" style={{cursor: 'pointer'}} onClick={() => history.push(`/users/${file.user_id}`)}>{file.user_name}</span></p>
+                    <p className="text-muted">Owner: <span className="hoverGreen" style={{cursor: 'pointer'}} onClick={() => {history.push(`/users/${file.user_id}`); ch_leave();}}>{file.user_name}</span></p>
                 }
             </div>
             
@@ -653,6 +657,10 @@ function ShowFile({session}) {
     const { id } = useParams();
 
     const [body, setBody] = useState("");
+    const [participants, setParticipants] = useState([]);
+    const [executing, setExecuting] = useState(false);
+    const [result, setResult] = useState(null);
+    const [connected, setConnected] = useState(0);
 
     const [fileNameError, setFileNameError] = useState(false);
 
@@ -677,6 +685,25 @@ function ShowFile({session}) {
         "alert": null
     });
 
+    const stf = {
+        setBody: setBody,
+        setParticipants: setParticipants,
+        setExecuting: setExecuting,
+        setResult: setResult,
+        setLanguage: setLanguage,
+        setConnected: setConnected
+    }
+
+    function handleUnload(ev) {
+        ch_leave();
+    }
+
+    useEffect(() => {
+        window.addEventListener("beforeunload", handleUnload);
+      
+        return () => window.removeEventListener("beforeunload", handleUnload);
+      }, [handleUnload]);
+
     useEffect(() => {
         show_file(id)
             .then((resp) => {
@@ -700,9 +727,11 @@ function ShowFile({session}) {
 
                 setBody(resp.body);
 
-                setLanguage(resp.language)
+                setLanguage(resp.language);
 
-                
+                if (session) {
+                    ch_join(`${resp.user_id}-${resp.id}`, session.name, session.user_id, stf);
+                }
             })
             .catch((e) => {
                 if (e instanceof SyntaxError) {
@@ -758,6 +787,7 @@ function ShowFile({session}) {
 
     function bodyChange(val) {
         setBody(val);
+        ch_update(val);
     }
 
     function idToMode(id) {
@@ -833,6 +863,7 @@ function ShowFile({session}) {
                                 width="100%"
                                 value={body} 
                                 onChange={bodyChange} 
+                                onBlur={() => {ch_stop_typing()}}
                                 highlightActiveLine={true}
                                 showGutter={true}
                                 readOnly={false}
@@ -845,7 +876,7 @@ function ShowFile({session}) {
                     </div>
                     <div className="fileInfoContainer">
                         { session ?
-                            <EditorInfo session={session} file={file} language={language} setLanguage={setLanguage} save={save} body={body}/>
+                            <EditorInfo session={session} file={file} language={language} setLanguage={setLanguage} save={save} body={body} participants={participants}/>
                         :
                             <NoSession id={id} language={language} />
                         }

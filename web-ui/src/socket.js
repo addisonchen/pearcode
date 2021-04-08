@@ -29,7 +29,7 @@ export function ch_join(lobby, name, user_id, stf) {
 
     channel.join()
         .receive("ok", (resp) => {
-            statefns.setBody(resp);
+            statefns.setBody(resp.body);
             statefns.setConnected(1);
         })
         .receive("error", (resp) => {
@@ -37,7 +37,7 @@ export function ch_join(lobby, name, user_id, stf) {
             statefns.setConnected(2);
         });
 
-    channel.on("updated", (resp) => {statefns.setBody(resp.body)});
+    channel.on("updated", (resp) => {statefns.setBody(resp.body);});
     channel.on("executing", () => {statefns.setExecuting(true)});
     channel.on("submission_result", (resp) => {
         statefns.setExecuting(false);
@@ -55,6 +55,7 @@ export function ch_update(body) {
 }
 
 export function ch_leave() {
+    console.log('leaving');
     channel.leave();
 }
 
