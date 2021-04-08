@@ -7,6 +7,16 @@ defmodule Pearcode.LobbyServer do
     {:via, Registry, {Pearcode.LobbyReg, name}}
   end
 
+  def start(name, file_id) do
+    spec = %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [name, file_id]},
+      restart: :permanent,
+      type: :worker
+    }
+    Pearcode.LobbySupervisor.start_child(spec)
+  end
+
   def start(name) do
     spec = %{
       id: __MODULE__,
@@ -15,6 +25,15 @@ defmodule Pearcode.LobbyServer do
       type: :worker
     }
     Pearcode.LobbySupervisor.start_child(spec)
+  end
+
+  def start_link(name, file_id) do
+    lobby = Lobby.new(file_id)
+    GenServer.start_link(
+      __MODULE__,
+      lobby,
+      name: reg(name)
+    )
   end
 
   def start_link(name) do

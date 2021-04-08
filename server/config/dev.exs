@@ -3,7 +3,7 @@ use Mix.Config
 # Configure your database
 config :pearcode, Pearcode.Repo,
   username: "pearcode",
-  password: "ohKee0vaequa",
+  password: "ti4kaNu7ooNe",
   database: "pearcode",
   hostname: "localhost",
   show_sensitive_data_on_connection_error: true,

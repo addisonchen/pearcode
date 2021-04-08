@@ -43,6 +43,10 @@ defmodule Pearcode.Files do
     |> Repo.preload(comments: [:user])
   end
 
+  def get_just_file(id) do
+    Repo.get(File, id)
+  end
+
   @doc """
   Creates a file.
 
