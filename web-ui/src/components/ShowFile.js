@@ -319,7 +319,8 @@ function NoSession({ id, language }) {
     )
 }
 
-function EditorInfo({ session, file, language, setLanguage, save, body, participants }) {
+// todo: result, connecting status, execute
+function EditorInfo({ session, file, language, setLanguage, save, body, participants, result, executing, connected }) {
     const history = useHistory();
     console.log(participants)
 
@@ -352,17 +353,22 @@ function EditorInfo({ session, file, language, setLanguage, save, body, particip
         const file = new Blob([body], {type: 'text/plain'});
         element.href = URL.createObjectURL(file);
         element.download = `${name}${ext}`;
-        document.body.appendChild(element); // Required for this to work in FireFox
+        document.body.appendChild(element);
         element.click();
     }
 
     function deleteFile(id) {
         delete_file(id).then(()=>{
-            // TODO
             console.log('fix deleting when others are viewing!');
             history.push(`/users/${session.user_id}`);
             ch_leave();
         })
+    }
+
+    function doExecute() {
+        if (!executing) {
+            ch_execute();
+        }
     }
 
     return (
@@ -410,20 +416,32 @@ function EditorInfo({ session, file, language, setLanguage, save, body, particip
                 </div>
             }
 
-            <div className="box slimPadding flex-column boxHeadingContainer" style={{margin: '10px 0px'}}>
-                <Form.Control className="dark-form muted" as="select" value={language} onChange={(ev) => {setLanguage(ev.target.value); ch_language(ev.target.value);}}>
-                    <option value={50}>C (GCC 9.2.0)</option>
-                    <option value={54}>C++ (GCC 9.2.0)</option>
-                    <option value={57}>Elixir</option>
-                    <option value={62}>Java 13</option>
-                    <option value={63}>JavaScript 12.14</option>
-                    <option value={69}>Prolog (GNU 1.4.5)</option>
-                    <option value={71}>Python 3</option>
-                    <option value={72}>Ruby 2.7</option>
-                    <option value={83}>Swift 5</option>
-                </Form.Control>
-                <div style={{height: '10px'}}></div>
-                <Button variant="outline-info">Execute</Button>
+            <div className="box slimPadding flex-column boxHeadingContainer" style={{margin: '10px 0px', minHeight: '106px'}}>
+                { connected === 0 ?
+                    <div className="flex-column centercenter" style={{width: '100%', height: '100%'}}>
+                        <div class="spinner"></div>
+                        <p>connecting...</p>
+                    </div>
+                    :
+                        connected === 1 ?
+                            <>
+                                <Form.Control className="dark-form muted" as="select" value={language} onChange={(ev) => {setLanguage(ev.target.value); ch_language(ev.target.value);}}>
+                                    <option value={50}>C (GCC 9.2.0)</option>
+                                    <option value={54}>C++ (GCC 9.2.0)</option>
+                                    <option value={57}>Elixir</option>
+                                    <option value={62}>Java 13</option>
+                                    <option value={63}>JavaScript 12.14</option>
+                                    <option value={69}>Prolog (GNU 1.4.5)</option>
+                                    <option value={71}>Python 3</option>
+                                    <option value={72}>Ruby 2.7</option>
+                                    <option value={83}>Swift 5</option>
+                                </Form.Control>
+                                <div style={{height: '10px'}}></div>
+                                <Button variant={executing ? "outline-warning" : "outline-info"} onClick={doExecute}>Execute</Button>
+                            </>
+                        :
+                            <p className="text-danger">Failed to connect, try refreshing the page</p>
+                }
             </div>
 
             <div className={`box slimPadding flex-column boxHeadingContainer ${toggle[0] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
@@ -436,7 +454,24 @@ function EditorInfo({ session, file, language, setLanguage, save, body, particip
                     }
                 </div>
                 <div className="insetBorder" style={{height: '200px', overflow: 'scroll'}}>
-                    {/* put stuff in this box boi */}
+                    { participants.map((p, idx) => {
+                        return (
+                        <div key={idx}>
+                            <p>{p.name}
+                            { p.typing ? 
+                                <span>&ensp;⌨️</span>
+                            :
+                                <></>
+                            }
+                            { p.executing ? 
+                                <span>&ensp;🏃🏽</span>
+                            :
+                                <></>
+                            }
+                            </p>
+                        </div>
+                        )
+                    })}
                 </div>
             </div>
 
@@ -451,6 +486,7 @@ function EditorInfo({ session, file, language, setLanguage, save, body, particip
                 </div>
                 <div className="insetBorder" style={{height: '500px', overflow: 'scroll'}}>
                     {/* put stuff in this box boi */}
+                    {console.log(result)}
                 </div>
             </div>
         </div>
@@ -876,7 +912,7 @@ function ShowFile({session}) {
                     </div>
                     <div className="fileInfoContainer">
                         { session ?
-                            <EditorInfo session={session} file={file} language={language} setLanguage={setLanguage} save={save} body={body} participants={participants}/>
+                            <EditorInfo session={session} file={file} language={language} setLanguage={setLanguage} save={save} body={body} participants={participants} result={result} executing={executing} connected={connected}/>
                         :
                             <NoSession id={id} language={language} />
                         }

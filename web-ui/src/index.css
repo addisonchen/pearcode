@@ -567,3 +567,21 @@ h1, h2, h3, h4, h5, h6 {
 .boxHeadingContainer:hover .toggleBoxHeading.dSign {
   color: #ffffff !important;
 }
+
+@keyframes spin {
+  from {
+    transform: rotate(0);
+  }
+  to{
+    transform: rotate(359deg);
+  }
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgb(202, 203, 78);
+  border-top: 3px solid transparent;
+  border-radius: 50%;
+  animation: spin .5s linear 0s infinite;
+}

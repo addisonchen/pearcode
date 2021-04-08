@@ -21,7 +21,6 @@ defmodule Pearcode.JudgeHandler do
           "http://172.17.0.1:4444/api/v1/submissions/#{lobby_id}/#{user_id}"
       end
 
-      IO.puts callback_url
 
       body = Jason.encode!(%{
           source_code: code,
@@ -29,6 +28,5 @@ defmodule Pearcode.JudgeHandler do
           callback_url: callback_url
       })
       {:ok, response} = HTTPoison.post(url, body, headers)
-      IO.inspect response
   end
 end

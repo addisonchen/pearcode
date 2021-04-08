@@ -53,15 +53,17 @@ defmodule PearcodeWeb.LobbyChannel do
 
   @impl true
   def handle_in("execute", payload, socket) do
-      tp = socket.assigns[:typing]
-      LobbyPresence.do_user_update(socket, socket.assigns.lobby_id, socket.assigns.user_id, socket.assigns.user_name, %{typing: tp, executing: true})
-      socket = assign(socket, :executing, true)
-      lobby = socket.assigns[:lobby]
-      lobby_id = socket.assigns[:lobby_id]
-      user_id = socket.assigns[:user_id]
-      JudgeHandler.execute(lobby[:body], payload["language"], lobby_id, user_id)
+      if socket.assigns[:executing] do
+        tp = socket.assigns[:typing]
+        LobbyPresence.do_user_update(socket, socket.assigns.lobby_id, socket.assigns.user_id, socket.assigns.user_name, %{typing: tp, executing: true})
+        socket = assign(socket, :executing, true)
+        lobby = socket.assigns[:lobby]
+        lobby_id = socket.assigns[:lobby_id]
+        user_id = socket.assigns[:user_id]
+        JudgeHandler.execute(lobby[:body], payload["language"], lobby_id, user_id)
 
-      push(socket, "executing", lobby)
+        push(socket, "executing", lobby)
+      end
       {:noreply, socket}
   end
 
@@ -78,6 +80,7 @@ defmodule PearcodeWeb.LobbyChannel do
   @impl true
   def handle_out("submission_result", msg, socket) do
     user_id = socket.assigns[:user_id]
+    IO.puts "lobby_channel: ----------------"
     IO.inspect msg
     if msg[:user_id] == user_id do
       tp = socket.assigns[:typing]

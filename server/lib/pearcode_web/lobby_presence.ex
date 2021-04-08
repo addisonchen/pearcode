@@ -5,16 +5,16 @@ defmodule PearcodeWeb.LobbyPresence do
   # TODO change name to user (db item)
   def track_user_join(socket, user_name, user_id) do
       track(socket, user_id, %{
+          executing: false,
           typing: false,
           name: user_name,
           user_id: user_id
       })
   end
 
-  def do_user_update(socket, lobby_id, user_id, user_name, %{typing: typing}) do
-      IO.inspect get_by_key("lobby:#{lobby_id}", user_id)
-      # TODO TRACK EXECUTING
+  def do_user_update(socket, lobby_id, user_id, user_name, %{typing: typing, executing: executing}) do
       update(socket, user_id, %{
+          executing: executing,
           typing: typing,
           name: user_name,
           user_id: user_id
