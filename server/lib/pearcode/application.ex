@@ -13,10 +13,12 @@ defmodule Pearcode.Application do
       PearcodeWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: Pearcode.PubSub},
+      PearcodeWeb.LobbyPresence,
       # Start the Endpoint (http/https)
-      PearcodeWeb.Endpoint
+      PearcodeWeb.Endpoint,
       # Start a worker by calling: Pearcode.Worker.start_link(arg)
       # {Pearcode.Worker, arg}
+      Pearcode.LobbySupervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

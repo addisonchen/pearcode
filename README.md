@@ -11,3 +11,9 @@ Includes code based on code from Nat's scratch repo
 # Elixir 1.9.4 -> 57
 # Prolog (GNU Prolog 1.4.5) -> 69
 # Ruby (2.7.0) -> 72
+
+
+# TODO:
+ - add executing to presence
+ - get execute button working
+ - OT

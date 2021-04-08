@@ -3,6 +3,7 @@ defmodule PearcodeWeb.UserSocket do
 
   ## Channels
   # channel "room:*", PearcodeWeb.RoomChannel
+  channel "lobby:*", PearcodeWeb.LobbyChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
