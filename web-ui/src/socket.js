@@ -1,6 +1,7 @@
 import {Socket, Presence} from "phoenix";
+const uuid = require("uuid");
 
-let socket = new Socket("ws://127.0.0.1:4000/socket", {params: {token: ""}})
+let socket = new Socket("ws://api.pearcode.swoogity.com/socket", {params: {token: ""}})
 
 socket.connect();
 
@@ -17,10 +18,32 @@ let statefns = null;
 let channel = null;
 let presence = null;
 
+export function ch_join_limited(stf) {
 
-export function ch_join(lobby, name, user_id, stf) {
-    channel = socket.channel(`lobby:${lobby}`, {name: name, user_id: user_id});
-    statefns = stf
+    channel = socket.channel(`lobby:${uuid.v4()}`, {name: "", user_id: 0});
+    statefns = stf;
+    presence = new Presence(channel);
+
+    channel.join()
+        .receive("ok", (resp) => {
+            statefns.setBody(resp.body);
+            statefns.setConnected(1);
+        })
+        .receive("error", (resp) => {
+            console.log("unable to join:", resp);
+            statefns.setConnected(2);
+        });
+
+    channel.on("executing", () => {statefns.setExecuting(true)});
+    channel.on("submission_result", (resp) => {
+        statefns.setExecuting(false);
+        statefns.setResult(resp);
+    });
+}
+
+export function ch_join(lobby, name, user_id, file_id, stf) {
+    channel = socket.channel(`lobby:${lobby}`, {name: name, user_id: user_id, file_id: file_id});
+    statefns = stf;
     presence = new Presence(channel);
 
     presence.onSync(() => {
@@ -41,8 +64,6 @@ export function ch_join(lobby, name, user_id, stf) {
     channel.on("executing", () => {statefns.setExecuting(true)});
     channel.on("submission_result", (resp) => {
         statefns.setExecuting(false);
-        console.log('result = ');
-        console.log(resp);
         statefns.setResult(resp);
     });
     channel.on("new_language", (resp) => {
@@ -55,8 +76,9 @@ export function ch_update(body) {
 }
 
 export function ch_leave() {
-    console.log('leaving');
-    channel.leave();
+    if (channel) {
+        channel.leave();
+    }
 }
 
 export function ch_stop_typing() {

@@ -321,7 +321,6 @@ function NoSession({ id, language }) {
 
 function EditorInfo({ session, file, language, setLanguage, save, body, participants, result, executing, connected }) {
     const history = useHistory();
-    console.log(participants)
 
     const fileOwner = session.user_id === file.user_id;
 
@@ -366,7 +365,7 @@ function EditorInfo({ session, file, language, setLanguage, save, body, particip
 
     function doExecute() {
         if (!executing) {
-            ch_execute();
+            ch_execute(parseInt(language));
         }
     }
 
@@ -418,7 +417,8 @@ function EditorInfo({ session, file, language, setLanguage, save, body, particip
             <div className="box slimPadding flex-column boxHeadingContainer" style={{margin: '10px 0px', minHeight: '106px'}}>
                 { connected === 0 ?
                     <div className="flex-column centercenter" style={{width: '100%', height: '100%'}}>
-                        <div class="spinner"></div>
+                        <div className="spinner"></div>
+                        <div style={{height: '10px'}}></div>
                         <p>connecting...</p>
                     </div>
                     :
@@ -436,7 +436,15 @@ function EditorInfo({ session, file, language, setLanguage, save, body, particip
                                     <option value={83}>Swift 5</option>
                                 </Form.Control>
                                 <div style={{height: '10px'}}></div>
-                                <Button variant={executing ? "outline-warning" : "outline-info"} onClick={doExecute}>Execute</Button>
+                                <Button variant={executing ? "outline-warning" : "outline-info"} onClick={doExecute} style={{minHeight: '38px'}}>
+                                    { executing ? 
+                                        <div className="flex-row centercenter" style={{width: '100%', height: '100%'}}>
+                                            <div className="smallSpinner"></div> 
+                                        </div>
+                                    : 
+                                        'Execute'
+                                    }
+                                </Button>
                             </>
                         :
                             <p className="text-danger">Failed to connect, try refreshing the page</p>
@@ -483,9 +491,17 @@ function EditorInfo({ session, file, language, setLanguage, save, body, particip
                         <h5 className={`${toggle[0] ? '' : 'text-muted'} toggleBoxHeading dSign`}>+</h5>
                     }
                 </div>
-                <div className="insetBorder" style={{height: '500px', overflow: 'scroll'}}>
-                    {/* put stuff in this box boi */}
-                    {console.log(result)}
+                <div className="insetBorder" style={{height: '400px', overflow: 'scroll'}}>
+
+                    { result ?
+                        <div className="flex-column">
+                            <p><span className="bold green">Time:</span> {result.time}</p>
+                            <p><span className="bold green">Memory:</span> {result.memory}kb</p>
+                            <p style={{whiteSpace: 'pre-line'}}><span className="bold green">stdout:</span> {`\n${result.stdout}`}</p>
+                        </div>
+                    :
+                        <p>No results yet, run code to see results.</p>
+                    }
                 </div>
             </div>
         </div>
@@ -599,7 +615,7 @@ function SocialInfo({ session, file, reload, updateFile, setUpdateFile, fileName
                 { fileOwner ?
                     <Form onSubmit={(ev) => (ev.preventDefault())} autoComplete="new-password" style={{width: '100%'}}>
                         <Form.Group>
-                            <Form.Control autoComplete="unsupportedrandom" className="dark-form muted" style={{height: '150px', resize: 'none'}}as="textarea" value={updateFile.description} onChange={modifyDescription} placeholder="Enter Description" />
+                            <Form.Control autoComplete="unsupportedrandom" className="dark-form muted" style={{height: '150px', resize: 'none'}} as="textarea" value={updateFile.description} onChange={modifyDescription} placeholder="Enter Description" />
                         </Form.Group>
                     </Form>
                     :
@@ -720,15 +736,6 @@ function ShowFile({session}) {
         "alert": null
     });
 
-    const stf = {
-        setBody: setBody,
-        setParticipants: setParticipants,
-        setExecuting: setExecuting,
-        setResult: setResult,
-        setLanguage: setLanguage,
-        setConnected: setConnected
-    }
-
     function handleUnload(ev) {
         ch_leave();
     }
@@ -737,9 +744,18 @@ function ShowFile({session}) {
         window.addEventListener("beforeunload", handleUnload);
       
         return () => window.removeEventListener("beforeunload", handleUnload);
-      }, [handleUnload]);
+      }, []);
 
     useEffect(() => {
+        const stf = {
+            setBody: setBody,
+            setParticipants: setParticipants,
+            setExecuting: setExecuting,
+            setResult: setResult,
+            setLanguage: setLanguage,
+            setConnected: setConnected
+        }
+
         show_file(id)
             .then((resp) => {
                 setFile({
@@ -757,7 +773,7 @@ function ShowFile({session}) {
 
                 setUpdateFile({
                     'name': resp.name,
-                    'description': resp.description,
+                    'description': resp.description === null ? "" : resp.description,
                 });
 
                 setBody(resp.body);
@@ -765,7 +781,7 @@ function ShowFile({session}) {
                 setLanguage(resp.language);
 
                 if (session) {
-                    ch_join(`${resp.user_id}-${resp.id}`, session.name, session.user_id, stf);
+                    ch_join(`${resp.user_id}-${resp.id}`, session.name, session.user_id, resp.id, stf);
                 }
             })
             .catch((e) => {
@@ -773,7 +789,7 @@ function ShowFile({session}) {
                     setFound(false);
                 }
             });
-    }, [id])
+    }, [id, session])
 
     function reload(alert) {
         show_file(id)

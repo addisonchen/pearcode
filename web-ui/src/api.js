@@ -2,7 +2,7 @@
 
 import store from './store';
 
-const url = "http://localhost:4000/api/v1";
+const url = "https://api.pearcode.swoogity.com/api/v1";
 
 async function api_get(path) {
   let resp = await fetch(
@@ -158,11 +158,4 @@ export function create_comment(comment) {
 
 export function delete_comment(id) {
   return api_delete(`/comments/${id}`);
-}
-
-
-
-export function load_defaults() {
-  //fetch_files();
-  //fetch_users();
 }

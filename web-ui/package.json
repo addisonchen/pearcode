@@ -11,6 +11,7 @@
     "font-awesome": "^4.7.0",
     "localStorage": "^1.0.4",
     "moment-utl": "^2.16.0",
+    "node-fetch": "^2.6.1",
     "phoenix": "^1.5.8",
     "react": "^17.0.1",
     "react-ace": "^9.4.0",
