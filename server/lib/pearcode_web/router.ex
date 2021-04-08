@@ -21,7 +21,7 @@ defmodule PearcodeWeb.Router do
     resources "/invites", InviteController, except: [:new, :edit]
     resources "/comments", CommentController, except: [:new, :edit]
     resources "/session", SessionController, only: [:create]
-    put "/submissions/:lobby_id", SubmissionController, :receive_webhook
+    put "/submissions/:lobby_id/:user_id", SubmissionController, :receive_webhook
   end
 
   # Other scopes may use custom stacks.
