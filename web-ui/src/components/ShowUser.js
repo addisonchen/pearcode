@@ -477,8 +477,8 @@ function ShowYourself({ session }) {
                             <Form.Group className="flex-column space-between" style={{height: '100%'}}>
                                 <Row>
                                     <Col>
-                                        <Form.Label>Name</Form.Label>
-                                        <Form.Control autoComplete="unsupportedrandom" className="dark-form" type="text" onChange={updateFileName} value={file.name} placeholder="Choose name" />
+                                        <Form.Label>Create New File</Form.Label>
+                                        <Form.Control autoComplete="unsupportedrandom" className="dark-form" type="text" onChange={updateFileName} value={file.name} placeholder="Name" />
                                     </Col>
                                 </Row>
                                 
