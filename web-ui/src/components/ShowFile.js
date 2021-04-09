@@ -658,7 +658,7 @@ function SocialInfo({ session, file, reload, updateFile, setUpdateFile, fileName
                         })
                     }
                 </div>
-                { (fileOwner || invited) ?
+                { fileOwner ?
                     <Form onSubmit={submitInvite} autoComplete="new-password" style={{width: '100%', overflow: 'visible'}}>
                         <div className="flex-row" style={{overflow: 'visible'}}>
                             <Form.Control autoComplete="unsupportedrandom" className="dark-form muted" type="text" value={inviteEmail} onChange={(ev) => {setInviteEmail(ev.target.value)}} placeholder="Invite email" />
@@ -671,7 +671,7 @@ function SocialInfo({ session, file, reload, updateFile, setUpdateFile, fileName
                 }
             </div>
 
-            <div className={`box slimPadding boxHeadingContainer ${toggle[2] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
+            <div id="commentContainer" className={`box slimPadding boxHeadingContainer ${toggle[2] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
                 <div className="flex-column" style={{overflow: 'visible', width: '100%'}}>
                     <div style={{minHeight: '24px'}} className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(2)}}>
                         <h5 className={`${toggle[2] ? '' : 'text-muted'} toggleBoxHeading`}>Comments</h5>
@@ -697,7 +697,7 @@ function SocialInfo({ session, file, reload, updateFile, setUpdateFile, fileName
                             })
                         }
                     </div>
-                    { fileOwner ?
+                    { (fileOwner || invited) ?
                         <Form onSubmit={submitComment} autoComplete="new-password" style={{width: '100%', overflow: 'visible'}}>
                             <div className="flex-row" style={{overflow: 'visible'}}>
                                 <Form.Control autoComplete="unsupportedrandom" className="dark-form muted" type="text" value={newComment} onChange={(ev) => {setNewComment(ev.target.value)}} placeholder="Comment" />
