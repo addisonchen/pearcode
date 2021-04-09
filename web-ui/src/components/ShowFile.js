@@ -365,6 +365,9 @@ function EditorInfo({ session, file, language, setLanguage, save, body, particip
 
     function doExecute() {
         if (!executing) {
+            let t1 = [...toggle];
+            t1[1] = true;
+            setToggle(t1);
             ch_execute(parseInt(language));
         }
     }
@@ -504,7 +507,10 @@ function EditorInfo({ session, file, language, setLanguage, save, body, particip
                             }
                         </div>
                     :
-                        <p>No results yet, run code to see results.</p>
+                        executing ?
+                            <p>Running...</p>
+                        :
+                            <p>No results yet, run code to see results.</p>
                     }
                 </div>
             </div>

@@ -69,6 +69,9 @@ function Home({session}) {
 
     function doExecute() {
         if (!executing) {
+            let t1 = [...toggle];
+            t1[1] = true;
+            setToggle(t1);
             ch_execute(parseInt(language));
         }
     }
@@ -233,7 +236,10 @@ function Home({session}) {
                                     <p style={{whiteSpace: 'pre-line'}}><span className="bold green">stdout:</span> {`\n${result.stdout}`}</p>
                                 </div>
                             :
-                                <p>No results yet, run code to see results.</p>
+                                executing ?
+                                    <p>Running...</p>
+                                :
+                                    <p>No results yet, run code to see results.</p>
                             }
                         </div>
                     </div>
