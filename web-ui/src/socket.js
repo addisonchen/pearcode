@@ -1,7 +1,7 @@
 import {Socket, Presence} from "phoenix";
 const uuid = require("uuid");
 
-let socket = new Socket("ws://api.pearcode.swoogity.com/socket", {params: {token: ""}})
+let socket = new Socket("wss://api.pearcode.swoogity.com/socket", {params: {token: ""}})
 
 socket.connect();
 
