@@ -79,35 +79,33 @@ Presence information. Presence is the neat feature that allows users
 to see what other users are doing live. The app has been tested by
 creating files and working on them concurrently with other people.
 
-# Beyond requirements #
-A lot of work was put into making the user interface interesting.
-Although it is not the best looking interface, the goal was to keep
-users focused on their code by reducing distractions. In addition to
-this, there are many small features such as downloading files in their
-language file type or being able to filter and search through files
-that are not necessarily complex, but add to the user experience as a
-whole.
+# Beyond requirements # A lot of work was put into making the user
+interface interesting.  Although it is not the best looking interface,
+the goal was to keep users focused on their code by reducing
+distractions. There are many CSS microinteractions such as loading
+animations and hover selectors. In addition to this, there are many
+small features such as downloading files in their language file type
+or being able to filter and search through files that are not
+necessarily complex, but add to the user experience as a whole.
 
-# Complex Component #
-The complex component of my application is the sockets and channels
-communication. I set up channels to handle a single file, identified
-by the file owner id as well as the file id. A GenServer is used to
-maintain state, and a Presence module is used to keep track of who is
-currently in the channel as well as their activity with the file. The
-channel modifies both the GenServer and the Presence module
-accordingly.
+# Complex Component # The complex component of my application is the
+sockets and channels communication. I set up channels to handle a
+single file, identified by the file owner id as well as the file id. A
+GenServer is used to maintain state, and a Presence module is used to
+keep track of who is currently in the channel as well as their
+activity with the file. The channel modifies both the GenServer and
+the Presence module accordingly.
 
-# Challanging Component #
-The Judge0 API executes code and puts the results to a callback URL
-The most challanging component of building the application was
-configuring and hosting the Judge0 API. Hosting the API on my VPS
-allows for unlimited computations rather than being limited by the
-servers hosted by Judge0. 
+# Challanging Component # The Judge0 API executes code and puts the
+results to a callback URL The most challanging component of building
+the application was configuring and hosting the Judge0 API. Hosting
+the API on my VPS allows for unlimited computations rather than being
+limited by the servers hosted by Judge0. 
 
 Hosting Judge0 required setting up a docker-compose container. I have
 not had experience with docker, and a lot of time was spent figuring
 out what changes I needed to make to my nginx instance as well as my
-postgres and redis databases. Another issue caused by the
+postgres and redis databases.  Another issue caused by the
 docker-compose container was providing a url for the callback put. A
 lot of testing was completed in order to understand exactly what url
 would work and how the Phoenix server should handle the callback
