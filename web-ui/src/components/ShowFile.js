@@ -374,7 +374,7 @@ function EditorInfo({ session, file, language, setLanguage, save, body, particip
 
     return (
         <div className="editorInfoContainer padding">
-            <div style={{minHeight: '45px', width: '100%'}}>
+            <div style={{minHeight: '45px', width: '100%', overflow: 'visible'}}>
                 <div className="flex-row center space-between" style={{width: '100%', overflow: 'visible', minHeight: '38px'}}>
                     <Button variant="outline-info" onClick={() => {history.push(`/users/${session.user_id}`); ch_leave();}} style={{textOverflow: 'clip', whiteSpace: 'nowrap'}}>Your Profile</Button>
                     <h1 className="headingEmoji" onClick={() => {history.push('/'); ch_leave();}}>🍐</h1>

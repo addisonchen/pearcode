@@ -50,8 +50,6 @@ function ShowFiles({ user, setUser, invites, owner }) {
             if (iLanguage === '0') {
                 return s1.includes(search) && (i.email != user.email);
             } else {
-                console.log(`${i.email} | ${user.email}`)
-                console.log(`${i.file.language} | ${iLanguage}`)
                 return s1.includes(search) && (i.file.language == iLanguage) && (i.email != user.email);
             }
         }));
@@ -69,11 +67,9 @@ function ShowFiles({ user, setUser, invites, owner }) {
         72: "Ruby"
     };
 
-    function deleteFile(ev) {
-        ev.stopPropagation();
-        delete_file(ev.target.value).then(()=>{
-            show_user(user.user_id)
-            .then((resp) => {
+    function deleteFile(file_id, user_id) {
+        delete_file(file_id).then(()=>{
+            show_user(user_id).then((resp) => {
                 resp.files.sort(compareFiles);
                 setUser({
                     "name": resp.name,
@@ -134,7 +130,7 @@ function ShowFiles({ user, setUser, invites, owner }) {
                                     { owner ?
                                         <>
                                             <p className="fileDisplayLanguage">{d[f.language]}</p>
-                                            <Button className="fileDisplayDelete" variant="outline-danger" onClick={deleteFile} value={f.id}>Delete</Button>
+                                            <Button className="fileDisplayDelete" variant="outline-danger" onClick={(ev) => {ev.stopPropagation(); deleteFile(f.id, user.user_id);}} value={f.id}>Delete</Button>
                                         </>
                                         :
                                         <p className="fileDisplayLanguage">{d[f.language]}</p>
@@ -233,7 +229,8 @@ function ShowOther({ id }) {
     const [user, setUser] = useState({
         "name": "",
         "email": "",
-        "files": []
+        "files": [],
+        "user_id": id
     });
 
     const [invites, setInvites] = useState([]);
@@ -247,7 +244,8 @@ function ShowOther({ id }) {
                 setUser({
                     "name": resp.name,
                     "email": resp.email,
-                    "files": resp.files
+                    "files": resp.files,
+                    "user_id": id
                 })
             })
             .catch((e) => {
@@ -396,7 +394,8 @@ function ShowYourself({ session }) {
     const [user, setUser] = useState({
         "name": "",
         "email": "",
-        "files": []
+        "files": [],
+        "user_id": session.user_id
     });
 
     const [file, setFile] = useState({
@@ -418,7 +417,8 @@ function ShowYourself({ session }) {
                 setUser({
                     "name": resp.name,
                     "email": resp.email,
-                    "files": resp.files
+                    "files": resp.files,
+                    "user_id": session.user_id
                 })
             })
             .finally(
