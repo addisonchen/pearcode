@@ -492,12 +492,16 @@ function EditorInfo({ session, file, language, setLanguage, save, body, particip
                     }
                 </div>
                 <div className="insetBorder" style={{height: '400px', overflow: 'scroll'}}>
-
                     { result ?
+                        
                         <div className="flex-column">
                             <p><span className="bold green">Time:</span> {result.time}</p>
                             <p><span className="bold green">Memory:</span> {result.memory}kb</p>
-                            <p style={{whiteSpace: 'pre-line'}}><span className="bold green">stdout:</span> {`\n${result.stdout}`}</p>
+                            { result.stderr ?
+                                <p style={{whiteSpace: 'pre-line'}}><span className="bold red">stderr:</span> {`\n${result.stderr}`}</p>
+                            :
+                                <p style={{whiteSpace: 'pre-line'}}><span className="bold green">stdout:</span> {`\n${result.stdout}`}</p>
+                            }
                         </div>
                     :
                         <p>No results yet, run code to see results.</p>

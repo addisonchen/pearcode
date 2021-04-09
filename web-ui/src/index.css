@@ -42,6 +42,10 @@ h1, h2, h3, h4, h5, h6 {
   color: rgb(202, 203, 78);
 }
 
+.red {
+  color: #E01A4F;
+}
+
 .hoverGreen {
   transition: 0.3s;
 }
