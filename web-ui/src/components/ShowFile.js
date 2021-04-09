@@ -671,7 +671,7 @@ function SocialInfo({ session, file, reload, updateFile, setUpdateFile, fileName
                 }
             </div>
 
-            <div id="commentContainer" className={`box slimPadding boxHeadingContainer ${toggle[2] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
+            <div className={`box slimPadding commentContainer boxHeadingContainer ${toggle[2] ? '' : 'closed'}`} style={{margin: '10px 0px'}}>
                 <div className="flex-column" style={{overflow: 'visible', width: '100%'}}>
                     <div style={{minHeight: '24px'}} className="flex-row space-between toggleBoxContainer" onClick={() => {toggleBox(2)}}>
                         <h5 className={`${toggle[2] ? '' : 'text-muted'} toggleBoxHeading`}>Comments</h5>

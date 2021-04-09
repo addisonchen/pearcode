@@ -547,7 +547,7 @@ h1, h2, h3, h4, h5, h6 {
   transition: 0.2s;
 }
 
-#commentContainer.hover .commentUserName{
+.commentContainer:hover .commentUserName{
   color:rgb(202, 203, 78);
 }
 

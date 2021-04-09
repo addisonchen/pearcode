@@ -48,9 +48,9 @@ function ShowFiles({ user, setUser, invites, owner }) {
             let s1 = i.file.name.toUpperCase();
             let search = iSearch.toUpperCase();
             if (iLanguage === '0') {
-                return s1.includes(search) && (i.email != user.email);
+                return s1.includes(search) && !(user.files.some((f) => f.id === i.file.id));
             } else {
-                return s1.includes(search) && (i.file.language == iLanguage) && (i.email != user.email);
+                return s1.includes(search) && (i.file.language == iLanguage) && !(user.files.some((f) => f.id === i.file.id));
             }
         }));
     }, [invites, iSearch, toggleISearch, iLanguage, user.email]);
@@ -254,8 +254,8 @@ function ShowOther({ id }) {
             .finally(
                 all_invites()
                     .then((resp) => {
-                        let respFiltered = resp.filter((i) => i.email === user.email)
-                        respFiltered.sort(compareInvites)
+                        let respFiltered = resp.filter((i) => i.email === user.email);
+                        respFiltered.sort(compareInvites);
                         setInvites(respFiltered);
                     })
             );
