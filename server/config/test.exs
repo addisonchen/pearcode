@@ -7,7 +7,7 @@ use Mix.Config
 # Run `mix help test` for more information.
 config :pearcode, Pearcode.Repo,
   username: "pearcode_spa",
-  password: "ohKee0vaequa",
+  password: "ti4kaNu7ooNe",
   database: "pearcode_spa",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox

@@ -12,7 +12,7 @@ config :pearcode,
 
 # Configures the endpoint
 config :pearcode, PearcodeWeb.Endpoint,
-  url: [host: "localhost"],
+  url: [host: "https://api.pearcode.swoogity.com"],
   secret_key_base: "M6QdbpEzIOC0U0Rr1+uFkSXMAcsHiEiQkW+rjMo9HK9pfUw6cmtygld9AtMuyMwR",
   render_errors: [view: PearcodeWeb.ErrorView, accepts: ~w(html json), layout: false],
   pubsub_server: Pearcode.PubSub,
