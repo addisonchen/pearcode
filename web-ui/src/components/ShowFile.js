@@ -653,7 +653,7 @@ function SocialInfo({ session, file, reload, updateFile, setUpdateFile, fileName
                         <div className="flex-row" style={{overflow: 'visible'}}>
                             <Form.Control autoComplete="unsupportedrandom" className="dark-form muted" type="text" value={inviteEmail} onChange={(ev) => {setInviteEmail(ev.target.value)}} placeholder="Invite email" />
                             <div style={{width: '15px'}}></div>
-                            <Button variant="outline-info" type="submit">Invite</Button>
+                            <Button variant={inviteEmail === "" ? 'outline-info' : 'outline-success'} type="submit">Invite</Button>
                         </div>
                     </Form>
                     :
@@ -692,7 +692,7 @@ function SocialInfo({ session, file, reload, updateFile, setUpdateFile, fileName
                             <div className="flex-row" style={{overflow: 'visible'}}>
                                 <Form.Control autoComplete="unsupportedrandom" className="dark-form muted" type="text" value={newComment} onChange={(ev) => {setNewComment(ev.target.value)}} placeholder="Comment" />
                                 <div style={{width: '15px'}}></div>
-                                <Button variant="outline-info" type="submit">Post</Button>
+                                <Button variant={newComment === "" ? 'outline-info' : 'outline-success'} type="submit">Post</Button>
                             </div>
                         </Form>
                         :
