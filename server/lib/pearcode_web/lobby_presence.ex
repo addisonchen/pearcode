@@ -2,7 +2,6 @@ defmodule PearcodeWeb.LobbyPresence do
   use Phoenix.Presence, otp_app: :pearcode,
       pubsub_server: Pearcode.PubSub
 
-  # TODO change name to user (db item)
   def track_user_join(socket, user_name, user_id) do
       track(socket, user_id, %{
           executing: false,
